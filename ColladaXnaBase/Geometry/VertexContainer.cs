@@ -14,31 +14,17 @@ namespace ColladaXna.Base.Geometry
     public class VertexContainer
     {
         //=====================================================================
-        #region VertexData and private fields
-
-        /// <summary>
-        /// Represents one group of vertex data, e.g. positions, normals etc.
-        /// </summary>
-        public class VertexData
-        {
-            public VertexElement Description;
-
-            public int Stride;
-
-            public float[] Data;
-
-            public int Count { get { return Data.Length / Stride; } }
-        }
+        #region Private fields
 
         [ContentSerializer]
-        List<VertexData> _vertexData = new List<VertexData>();
+        List<VertexChannel> _vertexChannels = new List<VertexChannel>();
 
         #endregion
 
         //=====================================================================
         #region Methods for accessing vertex channels
 
-        public List<VertexData> VertexChannels { get { return _vertexData; } }
+        public List<VertexChannel> VertexChannels { get { return _vertexChannels; } }
 
         public bool HasElement(VertexElementUsage element)
         {
@@ -59,12 +45,12 @@ namespace ColladaXna.Base.Geometry
         /// <param name="data">Array containing all data (length must be a multiple of stride)</param>
         public void AddVertexData(VertexElement element, int stride, float[] data)
         {
-            VertexData channel = new VertexData();
-            channel.Description = element;
-            channel.Stride = stride;
-            channel.Data = data;
+            VertexSource source = new VertexSource();            
+            source.Stride = stride;
+            source.Data = data;
 
-            _vertexData.Add(channel);
+            VertexChannel channel = new VertexChannel(source, element);
+            _vertexChannels.Add(channel);
         }        
 
         /// <summary>
@@ -296,7 +282,7 @@ namespace ColladaXna.Base.Geometry
         {
             int combinedSize = 0;
 
-            foreach (VertexData data in _vertexData)
+            foreach (VertexSource data in _vertexChannels)
             {
                 combinedSize += data.Stride;
             }
@@ -316,7 +302,7 @@ namespace ColladaXna.Base.Geometry
             int offset = 0;
 
             // Number of vertices (all channels must have an equal number of items)
-            int numVertices = _vertexData[0].Count;
+            int numVertices = _vertexChannels[0].Count;
 
             // Buffer holding all components of all vertices
             float[] buffer = new float[vertexSize * numVertices];
@@ -325,7 +311,7 @@ namespace ColladaXna.Base.Geometry
             for (int i = 0; i < numVertices; i++)
             {
                 // write all channels for this vertex (Position, Normal etc.)
-                foreach (VertexData t in _vertexData)
+                foreach (VertexSource t in _vertexChannels)
                 {
                     // write components of the current channel
                     for (int k = 0; k < t.Stride; k++)
@@ -341,16 +327,15 @@ namespace ColladaXna.Base.Geometry
         /// <summary>
         /// Dynamically creates a vertex declaration that fits the data contained by this
         /// vertex container.
-        /// </summary>
-        /// <param name="graphicsDevice"></param>
-        /// <returns></returns>
-        protected VertexDeclaration CreateVertexDeclaration(GraphicsDevice graphicsDevice)
+        /// </summary>        
+        /// <returns>A fitting vertex declaration</returns>
+        protected VertexDeclaration CreateVertexDeclaration()
         {
-            VertexElement[] elements = new VertexElement[_vertexData.Count];
+            VertexElement[] elements = new VertexElement[_vertexChannels.Count];
             short offset = 0;
             int index = 0;
 
-            foreach (VertexData data in _vertexData)
+            foreach (VertexSource data in _vertexChannels)
             {
                 VertexElement element = data.Description;
                 element.Offset = offset;                               
@@ -374,7 +359,7 @@ namespace ColladaXna.Base.Geometry
         {            
             float[] stream = CreateDataStream();
             
-            vertexDeclaration = CreateVertexDeclaration(graphicsDevice);
+            vertexDeclaration = CreateVertexDeclaration();
 
             vertexBuffer = new VertexBuffer(graphicsDevice, vertexDeclaration, stream.Length, BufferUsage.WriteOnly);            
             vertexBuffer.SetData<float>(stream);
@@ -394,8 +379,8 @@ namespace ColladaXna.Base.Geometry
         {
             vertexData = CreateDataStream();
 
-            vertexDeclaration = CreateVertexDeclaration(graphicsDevice);
-
+            vertexDeclaration = CreateVertexDeclaration();
+            
             vertexBuffer = new VertexBuffer(graphicsDevice, vertexDeclaration, vertexData.Length, BufferUsage.WriteOnly);
             vertexBuffer.SetData<float>(vertexData);
         }
@@ -415,11 +400,11 @@ namespace ColladaXna.Base.Geometry
         {
             VertexContainer vertices = new VertexContainer();
             bounds = new BoundingBox();
-            bounds.Min = instructions.FetchPosition(0);
+            bounds.Min = instructions.FetchData<Vector3>(VertexDataType.Position, 0);
             bounds.Max = bounds.Min;
 
             // Check for basic requirements
-            if (instructions.HasPositions == false)
+            if (instructions.Contains(VertexDataType.Position) == false)
             {
                 throw new ArgumentException("Geometry has not all needed information. At least Positions are necessary!");
             }
@@ -466,7 +451,7 @@ namespace ColladaXna.Base.Geometry
                     int index = positions.Count;
 
                     // Position is a must
-                    Vector3 position = instructions.FetchPosition(i);
+                    Vector3 position = instructions.FetchData<Vector3>(VertexDataType.Position, i);
 
                     positions.Add(position);
 
@@ -650,8 +635,7 @@ namespace ColladaXna.Base.Geometry
 
         public override int GetHashCode()
         {
-            // Position hash will vary the most, worst linearity will be 8,
-            // since at most 8 triangles can share one single vertex
+            // Position hash will vary the most
             return PositionIndex.GetHashCode();
         }
 
