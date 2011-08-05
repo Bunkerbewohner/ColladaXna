@@ -33,8 +33,8 @@ namespace ColladaXna.Base.Geometry
         /// </summary>
         /// <param name="source">Used vertex source</param>
         /// <param name="description">Vertex element description</param>
-        /// <param name="indices">Indices (may be null)</param>
-        public VertexChannel(VertexSource source, VertexElement description, int[] indices = null)
+        /// <param name="indices">Indices</param>
+        public VertexChannel(VertexSource source, VertexElement description, int[] indices)
         {
             Source = source;
             Description = description;

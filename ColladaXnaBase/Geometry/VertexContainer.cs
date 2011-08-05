@@ -282,9 +282,9 @@ namespace ColladaXna.Base.Geometry
         {
             int combinedSize = 0;
 
-            foreach (VertexSource data in _vertexChannels)
+            foreach (VertexChannel channel in _vertexChannels)
             {
-                combinedSize += data.Stride;
+                combinedSize += channel.Source.Stride;
             }
 
             return combinedSize;
@@ -302,7 +302,7 @@ namespace ColladaXna.Base.Geometry
             int offset = 0;
 
             // Number of vertices (all channels must have an equal number of items)
-            int numVertices = _vertexChannels[0].Count;
+            int numVertices = _vertexChannels[0].Indices.Length;
 
             // Buffer holding all components of all vertices
             float[] buffer = new float[vertexSize * numVertices];
@@ -311,12 +311,12 @@ namespace ColladaXna.Base.Geometry
             for (int i = 0; i < numVertices; i++)
             {
                 // write all channels for this vertex (Position, Normal etc.)
-                foreach (VertexSource t in _vertexChannels)
+                foreach (VertexChannel c in _vertexChannels)
                 {
                     // write components of the current channel
-                    for (int k = 0; k < t.Stride; k++)
+                    for (int k = 0; k < c.Source.Stride; k++)
                     {
-                        buffer[offset++] = t.Data[i * t.Stride + k];
+                        buffer[offset++] = c.Source.Data[i * c.Source.Stride + k];
                     }                    
                 }
             }
@@ -335,12 +335,12 @@ namespace ColladaXna.Base.Geometry
             short offset = 0;
             int index = 0;
 
-            foreach (VertexSource data in _vertexChannels)
+            foreach (VertexChannel channel in _vertexChannels)
             {
-                VertexElement element = data.Description;
+                VertexElement element = channel.Description;
                 element.Offset = offset;                               
 
-                offset += (short)(data.Stride * sizeof(float));
+                offset += (short)(channel.Source.Stride * sizeof(float));
 
                 elements[index++] = element;
             }
