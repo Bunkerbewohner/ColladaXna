@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace ColladaXna.Base.Geometry
 {
@@ -23,6 +24,7 @@ namespace ColladaXna.Base.Geometry
 
         /// <summary>
         /// Indices of this channel's elements refering into the associated vertex source.
+        /// These indices are only local to the referenced vertex source.
         /// Without indices it is assumed, that all elements are given in propery order
         /// within the vertex source.
         /// </summary>
@@ -34,10 +36,10 @@ namespace ColladaXna.Base.Geometry
         /// <param name="source">Used vertex source</param>
         /// <param name="description">Vertex element description</param>
         /// <param name="indices">Indices</param>
-        public VertexChannel(VertexSource source, VertexElement description, int[] indices)
+        public VertexChannel(VertexSource source, VertexElement description)
         {
             Source = source;
-            Description = description;
+            Description = description;            
         }
 
         /// <summary>
@@ -63,6 +65,18 @@ namespace ColladaXna.Base.Geometry
                     Indices[i] = sourceIndices[j];
                 }
             }
+        }
+
+        public void GetValue(int atIndex, ref float[] dest, int destIndex)
+        {
+            Array.Copy(Source.Data, Indices[atIndex], dest, destIndex, Source.Stride);
+        }        
+
+        public void GetValue(int atIndex, out Vector3 result)
+        {
+            result = new Vector3(Source.Data[Indices[atIndex] + 0],
+                                 Source.Data[Indices[atIndex] + 1],
+                                 Source.Data[Indices[atIndex] + 2]);
         }
     }
 }

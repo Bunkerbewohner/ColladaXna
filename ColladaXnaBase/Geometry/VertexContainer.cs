@@ -395,35 +395,30 @@ namespace ColladaXna.Base.Geometry
         /// </summary>
         /// <param name="indices"></param>
         /// <returns>A vertex container</returns>
-        public static VertexContainer CreateVertexContainer(VertexInstructions instructions, 
+        public static VertexContainer CreateVertexContainer(List<VertexChannel> inputChannels, 
             out int[] indices, out BoundingBox bounds)
         {
-            VertexContainer vertices = new VertexContainer();
+            VertexContainer container = new VertexContainer();
             bounds = new BoundingBox();
-            bounds.Min = instructions.FetchData<Vector3>(VertexDataType.Position, 0);
+            bounds.Min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             bounds.Max = bounds.Min;
 
             // Check for basic requirements
-            if (instructions.Contains(VertexDataType.Position) == false)
-            {
+            if (inputChannels.Any(c => c.Description.VertexElementUsage == VertexElementUsage.Position) == false)            
                 throw new ArgumentException("Geometry has not all needed information. At least Positions are necessary!");
-            }
 
-            List<Vector3> positions = new List<Vector3>(instructions.PositionIndices.Length);
-            List<Color> colors = new List<Color>(instructions.ColorIndices.Length);
-            List<Vector3> normals = new List<Vector3>(instructions.NormalIndices.Length);
-            List<Vector3> tangents = new List<Vector3>(instructions.TangentIndices.Length);
-            List<Vector3> binormals = new List<Vector3>(instructions.BinormalIndices.Length);
-            List<Vector2> texCoords = new List<Vector2>(instructions.TexCoordIndices.Length);
-            List<Vector4> jointIndices = new List<Vector4>(instructions.JointIndices.Length);
-            List<Vector3> jointWeights = new List<Vector3>(instructions.JointWeightIndices.Length);
+            // List of vertices as float array (first 3 floats might be position, next 3 color and so on)
+            List<float[]> vertices = new List<float[]>();
+            int numIndices = inputChannels.First().Indices.Length;
 
-            Dictionary<VertexKey, int> usedVertices = new Dictionary<VertexKey, int>(instructions.NumVertices * 3 / 4);
+            // Remember the position of distinct vertices to avoid duplicates
+            Dictionary<VertexKey, int> usedVertices = new Dictionary<VertexKey, int>(numIndices * 3 / 4);
 
-            List<int> indexList = new List<int>(instructions.PositionIndices.Length);
+            // Indices referencing the new vertex buffer (vertices)
+            List<int> indexList = new List<int>(numIndices);
 
             // Go through all indices to create vertices
-            for (int i = 0; i < instructions.NumVertices; i++)
+            for (int i = 0; i < numIndices; i++)
             {
                 int positionIndex = instructions.PositionIndices[i];
                 int colorIndex = instructions.HasColors ? instructions.ColorIndices[i] : -1;
@@ -514,18 +509,18 @@ namespace ColladaXna.Base.Geometry
             }
 
             // Add all distinct channel entries to the vertex container
-            if (positions.Count > 0) vertices.AddPositions(positions.ToArray());
-            if (colors.Count > 0) vertices.AddColors(colors.ToArray());
-            if (normals.Count > 0) vertices.AddNormals(normals.ToArray());
-            if (tangents.Count > 0) vertices.AddTangents(tangents.ToArray());
-            if (binormals.Count > 0) vertices.AddBinormals(binormals.ToArray());
-            if (texCoords.Count > 0) vertices.AddTextureCoordinates(texCoords.ToArray());
-            if (jointIndices.Count > 0) vertices.AddJointIndices(jointIndices.ToArray());
-            if (jointWeights.Count > 0) vertices.AddJointWeights(jointWeights.ToArray());
+            if (positions.Count > 0) container.AddPositions(positions.ToArray());
+            if (colors.Count > 0) container.AddColors(colors.ToArray());
+            if (normals.Count > 0) container.AddNormals(normals.ToArray());
+            if (tangents.Count > 0) container.AddTangents(tangents.ToArray());
+            if (binormals.Count > 0) container.AddBinormals(binormals.ToArray());
+            if (texCoords.Count > 0) container.AddTextureCoordinates(texCoords.ToArray());
+            if (jointIndices.Count > 0) container.AddJointIndices(jointIndices.ToArray());
+            if (jointWeights.Count > 0) container.AddJointWeights(jointWeights.ToArray());
 
             indices = indexList.ToArray();
 
-            return vertices;
+            return container;
         }        
 
         #endregion 
@@ -537,82 +532,13 @@ namespace ColladaXna.Base.Geometry
     /// </summary>
     internal struct VertexKey
     {
-        private int _positionIndex;
-        private int _normalIndex;
-        private int _tangentIndex;
-        private int _texCoordIndex;
-        private int _jointIndicesIndex;
-        private int _jointWeightsIndex;
-
-        /// <summary>
-        /// Returns the index of the position used or -1 if no position
-        /// index was set
-        /// </summary>
-        public int PositionIndex
+        List<int> Indices;
+        List<VertexChannel> VertexChannels;
+        
+        public VertexKey(List<int> indices, List<VertexChannel> vertexChannels)
         {
-            get { return _positionIndex - 1; }
-            set { _positionIndex = value + 1; }
-        }
-
-        /// <summary>
-        /// Returns the index of the joint indices used or -1 if no joint
-        /// indices index was set
-        /// </summary>
-        public int JointIndicesIndex
-        {
-            get { return _jointIndicesIndex - 1; }
-            set { _jointIndicesIndex = value + 1; }
-        }
-
-        /// <summary>
-        /// Returns the index of the joint weights used or -1 if no joint
-        /// weights index was set
-        /// </summary>
-        public int JointWeightsIndex
-        {
-            get { return _jointWeightsIndex - 1; }
-            set { _jointWeightsIndex = value + 1; }
-        }
-
-        /// <summary>
-        /// Returns the index of the normal used or -1 if no normal
-        /// index was set
-        /// </summary>
-        public int NormalIndex
-        {
-            get { return _normalIndex - 1; }
-            set { _normalIndex = value + 1; }
-        }
-
-        /// <summary>
-        /// Returns the index of the tangent used or -1 if no tangent
-        /// index was set
-        /// </summary>
-        public int TangentIndex
-        {
-            get { return _tangentIndex - 1; }
-            set { _tangentIndex = value + 1; }
-        }
-
-        /// <summary>
-        /// Returns the index of the texture coordinate used or -1 if 
-        /// no texture coordinate index was set
-        /// </summary>
-        public int TexCoordIndex
-        {
-            get { return _texCoordIndex - 1; }
-            set { _texCoordIndex = value + 1; }
-        }
-
-        public VertexKey(int positionIndex, int normalIndex, 
-            int tangentIndex, int texCoordIndex, int jointIndicesIndex, int jointWeightsIndex)
-        {
-            _positionIndex = positionIndex + 1;
-            _normalIndex = normalIndex + 1;
-            _tangentIndex = tangentIndex + 1;
-            _texCoordIndex = texCoordIndex + 1;
-            _jointIndicesIndex = jointIndicesIndex;
-            _jointWeightsIndex = jointWeightsIndex;
+            Indices = indices;
+            VertexChannels = vertexChannels;
         }
 
         public override bool Equals(object obj)
@@ -621,10 +547,10 @@ namespace ColladaXna.Base.Geometry
             {
                 VertexKey other = (VertexKey) obj;
 
-                return PositionIndex == other.PositionIndex &&
-                       NormalIndex == other.NormalIndex &&
-                       TangentIndex == other.TangentIndex &&
-                       TexCoordIndex == other.TexCoordIndex; 
+                return Indices[0] == other.Indices[0] &&
+                       (Indices[1] == other.Indices[1] &&
+                       Indices[2] == other.Indices[2] &&
+                       Indices[3] == other.Indices[3]; 
                         
                 // Note: Joint Indices/Weights are always the same for one position, 
                 // no need to compare                       
@@ -636,13 +562,7 @@ namespace ColladaXna.Base.Geometry
         public override int GetHashCode()
         {
             // Position hash will vary the most
-            return PositionIndex.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return "VertexKey[" + PositionIndex + ", " +
-                   NormalIndex + ", " + TangentIndex + ", " + TexCoordIndex + "]";
+            return Indices[0].GetHashCode();
         }
     }
 }

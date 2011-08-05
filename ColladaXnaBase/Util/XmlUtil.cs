@@ -346,12 +346,14 @@ namespace ColladaXna.Base.Util
         /// </summary>
         public string ColladaType { get { return _colladaType; } }
 
+        public int Stride { get { return _stride; } }
+
         /// <summary>
         /// Creates a wrapper for source data. Reads the data from the Xml node
         /// and stores it in a list of a suitable type.
         /// </summary>
         /// <param name="xmlSource">XML source node</param>
-        public Source(XmlNode xmlSource)
+        public Source(XmlNode xmlSource, bool floatArray = false)
         {
             XmlNode xmlAccessor = xmlSource.SelectSingleNode("technique_common/accessor");
             _count = int.Parse(xmlAccessor.Attributes["count"].Value);
@@ -376,112 +378,120 @@ namespace ColladaXna.Base.Util
 
             _colladaType = type;
 
-            switch (type)
+            if (floatArray)
             {
-                case "float":
+                _data = XmlUtil.ParseFloats(xmlData.InnerText);
+                _dataType = typeof(float[]);
+            }
+            else
+            {
+                switch (type)
                 {
-                    float[] data = XmlUtil.ParseFloats(xmlData.InnerText);
-
-                    if (_stride == 1)
-                    {
-                        _data = new List<float>(data);
-                        _dataType = typeof (float);
-                    }
-                    else if (_stride == 2)
-                    {
-                        List<Vector2> vectors = new List<Vector2>(_count);
-
-                        for (int i = 0; i < _count; i++)
+                    case "float":
                         {
-                            Vector2 v = new Vector2(data[_stride*i + 0], data[_stride*i + 1]);
-                            vectors.Add(v);
+                            float[] data = XmlUtil.ParseFloats(xmlData.InnerText);
+
+                            if (_stride == 1)
+                            {
+                                _data = new List<float>(data);
+                                _dataType = typeof(float);
+                            }
+                            else if (_stride == 2)
+                            {
+                                List<Vector2> vectors = new List<Vector2>(_count);
+
+                                for (int i = 0; i < _count; i++)
+                                {
+                                    Vector2 v = new Vector2(data[_stride * i + 0], data[_stride * i + 1]);
+                                    vectors.Add(v);
+                                }
+
+                                _data = vectors;
+                                _dataType = typeof(Vector2);
+                            }
+                            else if (_stride == 3)
+                            {
+                                List<Vector3> vectors = new List<Vector3>(_count);
+
+                                for (int i = 0; i < _count; i++)
+                                {
+                                    Vector3 v = new Vector3(data[_stride * i + 0],
+                                                            data[_stride * i + 1],
+                                                            data[_stride * i + 2]);
+                                    vectors.Add(v);
+                                }
+
+                                _data = vectors;
+                                _dataType = typeof(Vector3);
+                            }
+                            else if (_stride == 4)
+                            {
+                                List<Vector4> vectors = new List<Vector4>(_count);
+
+                                for (int i = 0; i < _count; i++)
+                                {
+                                    Vector4 v = new Vector4(data[_stride * i + 0],
+                                                            data[_stride * i + 1],
+                                                            data[_stride * i + 2],
+                                                            data[_stride * i + 3]);
+                                    vectors.Add(v);
+                                }
+
+                                _data = vectors;
+                                _dataType = typeof(Vector4);
+                            }
+
+                            break;
                         }
 
-                        _data = vectors;
-                        _dataType = typeof (Vector2);
-                    }
-                    else if (_stride == 3)
-                    {
-                        List<Vector3> vectors = new List<Vector3>(_count);
-
-                        for (int i = 0; i < _count; i++)
+                    case "float4x4":
                         {
-                            Vector3 v = new Vector3(data[_stride * i + 0], 
-                                                    data[_stride * i + 1],
-                                                    data[_stride * i + 2]);
-                            vectors.Add(v);
+                            float[] data = XmlUtil.ParseFloats(xmlData.InnerText);
+                            List<Matrix> matrices = new List<Matrix>(_count);
+
+                            for (int i = 0; i < _count; i++)
+                            {
+                                Matrix M = new Matrix(data[_stride * i + 0], data[_stride * i + 4],
+                                                      data[_stride * i + 8], data[_stride * i + 12],
+                                                      data[_stride * i + 1], data[_stride * i + 5],
+                                                      data[_stride * i + 9], data[_stride * i + 13],
+                                                      data[_stride * i + 2], data[_stride * i + 6],
+                                                      data[_stride * i + 10], data[_stride * i + 14],
+                                                      data[_stride * i + 3], data[_stride * i + 7],
+                                                      data[_stride * i + 11], data[_stride * i + 15]);
+
+                                matrices.Add(M);
+                            }
+
+                            _data = matrices;
+                            _dataType = typeof(Matrix);
+
+                            break;
                         }
 
-                        _data = vectors;
-                        _dataType = typeof (Vector3);
-                    }
-                    else if (_stride == 4)
-                    {
-                        List<Vector4> vectors = new List<Vector4>(_count);
+                    case "name":
+                        _data = new List<string>(XmlUtil.ParseNames(xmlData.InnerText));
+                        _dataType = typeof(string);
+                        break;
 
-                        for (int i = 0; i < _count; i++)
-                        {
-                            Vector4 v = new Vector4(data[_stride * i + 0],
-                                                    data[_stride * i + 1],
-                                                    data[_stride * i + 2],
-                                                    data[_stride * i + 3]);
-                            vectors.Add(v);
-                        }
+                    case "idref":
+                        _data = new List<string>(XmlUtil.ParseNames(xmlData.InnerText));
+                        _dataType = typeof(string);
+                        break;
 
-                        _data = vectors;
-                        _dataType = typeof(Vector4);
-                    }
+                    case "sidref":
+                        _data = new List<string>(XmlUtil.ParseNames(xmlData.InnerText));
+                        _dataType = typeof(string);
+                        break;
 
-                    break;
+                    case "int":
+                        _data = new List<int>(XmlUtil.ParseInts(xmlData.InnerText));
+                        _dataType = typeof(int);
+                        break;
+
+                    default:
+                        throw new NotImplementedException("No implementation for this kind of source");
                 }
-
-                case "float4x4":
-                {
-                    float[] data = XmlUtil.ParseFloats(xmlData.InnerText);
-                    List<Matrix> matrices = new List<Matrix>(_count);
-
-                    for (int i = 0; i < _count; i++)
-                    {
-                        Matrix M = new Matrix(data[_stride*i + 0], data[_stride*i + 4],
-                                              data[_stride*i + 8], data[_stride*i + 12],
-                                              data[_stride*i + 1], data[_stride*i + 5],
-                                              data[_stride*i + 9], data[_stride*i + 13],
-                                              data[_stride*i + 2], data[_stride*i + 6],
-                                              data[_stride*i + 10], data[_stride*i + 14],
-                                              data[_stride*i + 3], data[_stride*i + 7],
-                                              data[_stride*i + 11], data[_stride*i + 15]);
-
-                        matrices.Add(M);
-                    }
-
-                    _data = matrices;
-                    _dataType = typeof (Matrix);
-
-                    break;
-                }
-
-                case "name":
-                    _data = new List<string>(XmlUtil.ParseNames(xmlData.InnerText));
-                    _dataType = typeof (string);                    
-                    break;
-
-                case "idref":
-                    _data = new List<string>(XmlUtil.ParseNames(xmlData.InnerText));
-                    _dataType = typeof (string);
-                    break;
-
-                case "sidref":
-                    _data = new List<string>(XmlUtil.ParseNames(xmlData.InnerText));
-                    _dataType = typeof (string);
-                    break;
-
-                case "int":
-                    _data = new List<int>(XmlUtil.ParseInts(xmlData.InnerText));
-                    _dataType = typeof (int);
-                    break;
-
-                default:
-                    throw new NotImplementedException("No implementation for this kind of source");
             }
         }
 
@@ -514,6 +524,6 @@ namespace ColladaXna.Base.Util
             }
 
             return null;
-        }
+        }        
     }
 }

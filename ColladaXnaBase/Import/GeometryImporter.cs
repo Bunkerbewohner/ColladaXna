@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using System.Diagnostics;
 using ColladaXna.Base.Geometry;
 using ColladaXna.Base.Util;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace ColladaXna.Base.Import
 {
@@ -83,21 +84,17 @@ namespace ColladaXna.Base.Import
             }
 
             // Source data for this mesh used by all mesh parts.            
-            VertexSources sources = new VertexSources();
-            sources.Positions = GetPositions(xmlMeshNode);
-            sources.Colors = GetColors(xmlMeshNode);
-            sources.Normals = GetNormals(xmlMeshNode);
-            sources.Tangents = GetTangents(xmlMeshNode);
-            sources.Binormals = GetBinormals(xmlMeshNode);
-            sources.TexCoords = GetTextureCoordinates(xmlMeshNode);
+            List<VertexSource> sources = ReadSources(xmlMeshNode);
+
+            Vector4[] jointIndices;
+            Vector3[] jointWeights;
 
             // Skinning Information, if available
-            GetJointWeightsAndIndices(xmlMeshNode, model, out sources.JointIndices, 
-                out sources.JointWeights);            
+            GetJointWeightsAndIndices(xmlMeshNode, model, out jointIndices, out jointWeights);            
 
-            if (sources.Positions.Length == 0)
+            if (sources.Count == 0)
             {
-                throw new Exception("No position data found");
+                throw new Exception("No data found");
             }
 
             //-------------------------------------------------------
@@ -110,6 +107,8 @@ namespace ColladaXna.Base.Import
             // A mesh container for every mesh part, since every mesh part may use different
             // vertex types. This can be optimized in the content processor, if needed
             mesh.VertexContainers = new VertexContainer[xmlTriangles.Count];
+
+            string[] semantics = new string[] { "VERTEX", "COLOR", "NORMAL", "TEXCOORD", "TEXTANGENT", "TEXBINORMAL" };
 
             //-------------------------------------------------------
             // Create Mesh Parts
@@ -134,19 +133,13 @@ namespace ColladaXna.Base.Import
                     // Indices are contained in one <p> tag
                     indexStream.AddRange(XmlUtil.ParseInts(pNodes[0].InnerText));
                 }                
-                
-                int positionOffset = GetInputOffset(xmlPart, "VERTEX");
-                int colorOffset = GetInputOffset(xmlPart, "COLOR");
-                int normalOffset = GetInputOffset(xmlPart, "NORMAL");
-                int texCoordOffset = GetInputOffset(xmlPart, "TEXCOORD");
-                int tangentOffset = GetInputOffset(xmlPart, "TEXTANGENT");
-                int binormalOffset = GetInputOffset(xmlPart, "TEXBINORMAL");
-
-                MeshPart part = new MeshPart();
+                                
+                int[] indices = indexStream.ToArray();
+                MeshPart part = new MeshPart();                
 
                 try
                 {
-                    if (xmlPart.Attributes["material"] == null) throw new NotFoundException("no material attribute found", null);
+                    if (xmlPart.Attributes["material"] == null) throw new Exception("no material attribute found");
                     part.MaterialName = FindMaterial(xmlGeometryNode, xmlPart.Attributes["material"].Value);
                 }
                 catch (Exception)
@@ -155,30 +148,177 @@ namespace ColladaXna.Base.Import
                     part.MaterialName = null;
                 }
 
-                part.Vertices = mesh.VertexContainers[0];
+                // Read Vertex Channels
+                List<VertexChannel> vertexChannels = new List<VertexChannel>();
 
-                VertexInstructions instructions = new VertexInstructions(sources);
-                int[] indices = indexStream.ToArray();
+                foreach (String semantic in semantics)
+                {
+                    XmlNode input = xmlPart.SelectSingleNode(".//input[@semantic='" + semantic + "']");
+                    int offset;
+                    String sourceId;
 
-                instructions.CopyPositions(indices, positionOffset, numTriangles * 3);
-                instructions.CopyColors(indices, colorOffset, numTriangles * 3);
-                instructions.CopyNormals(indices, normalOffset, numTriangles * 3);
-                instructions.CopyTangents(indices, tangentOffset, numTriangles * 3);
-                instructions.CopyBinormals(indices, binormalOffset, numTriangles * 3);
-                instructions.CopyTexCoords(indices, texCoordOffset, numTriangles * 3);                
+                    if (!input.TryGetAttribute("source", out sourceId))
+                        throw new Exception("Referenced source of input with '" + semantic + "' semantic not found");
+                    if (!input.TryGetAttribute("offset", out offset))
+                        throw new Exception("No offset attribute of input with '" + semantic + "' semantic found");
+
+                    sourceId = sourceId.Replace("#", "");    
+                    VertexSource source = sources.Where(s => s.GlobalID.Equals(sourceId)).FirstOrDefault();
+                    if (source == null) throw new Exception("Source '" + sourceId + "' not found");
+
+                    VertexElement desc = new VertexElement();
+                    desc.Offset = offset;
+                    desc.UsageIndex = 0;
+                    desc.VertexElementFormat = GetVertexElementFormat(source, semantic);         
+                    desc.VertexElementUsage = GetVertexElementUsage(semantic);
+
+                    VertexChannel channel = new VertexChannel(source, desc);
+                    channel.CopyIndices(indices, offset, numTriangles * 3);
+                    vertexChannels.Add(channel);
+                }       
                 
-                instructions.GenerateJointIndicesAndWeights();
+                var jointChannels = GenerateJointChannels(jointIndices, jointWeights, 
+                    vertexChannels.Where(c => c.Description.VertexElementUsage == 
+                        VertexElementUsage.Position).First().Indices);
 
-                part.Vertices = VertexContainer.CreateVertexContainer(instructions, out part.Indices, 
+                if (jointChannels != null)
+                {
+                    vertexChannels.Add(jointChannels.Item1);
+                    vertexChannels.Add(jointChannels.Item2);
+                }
+
+                part.Vertices = VertexContainer.CreateVertexContainer(vertexChannels, out part.Indices, 
                     out mesh.Bounds);
                 mesh.VertexContainers[i] = part.Vertices;
                 mesh.MeshParts[i] = part;
             }
 
             return mesh;
-        }                
+        }
+
+        Tuple<VertexChannel,VertexChannel> GenerateJointChannels(Vector4[] jointIndices, Vector3[] jointWeights, int[] positionIndices)
+        {
+            if (jointIndices.Length == 0)            
+                return null;
+
+            VertexSource indexSource = new VertexSource();
+            VertexSource weightSource = new VertexSource();
+
+            indexSource.Stride = 4;
+            indexSource.Data = new float[jointIndices.Length * 4];
+
+            weightSource.Stride = 3;
+            weightSource.Data = new float[jointWeights.Length * 3];
+
+            for (int i = 0; i < jointIndices.Length; i++)
+            {
+                indexSource.Data[i * 4 + 0] = jointIndices[i].X;
+                indexSource.Data[i * 4 + 1] = jointIndices[i].Y;
+                indexSource.Data[i * 4 + 2] = jointIndices[i].Z;
+                indexSource.Data[i * 4 + 3] = jointIndices[i].W;
+            }
+
+            for (int i = 0; i < jointWeights.Length; i++)
+            {
+                weightSource.Data[i * 3 + 0] = jointWeights[i].X;
+                weightSource.Data[i * 3 + 1] = jointWeights[i].Y;
+                weightSource.Data[i * 3 + 2] = jointWeights[i].Z;                
+            }
+
+            VertexElement indexDesc = new VertexElement();
+            indexDesc.Offset = 0;            
+            indexDesc.UsageIndex = 0;
+            indexDesc.VertexElementFormat = VertexElementFormat.Vector4;
+            indexDesc.VertexElementUsage = VertexElementUsage.BlendIndices;
+
+            VertexElement weightDesc = new VertexElement();
+            weightDesc.Offset = 0;
+            weightDesc.UsageIndex = 0;
+            weightDesc.VertexElementFormat = VertexElementFormat.Vector3;
+            weightDesc.VertexElementUsage = VertexElementUsage.BlendWeight;
+
+            VertexChannel indexChannel = new VertexChannel(indexSource, indexDesc);                       
+            VertexChannel weightChannel = new VertexChannel(weightSource, weightDesc);            
+
+            indexChannel.Indices = new int[positionIndices.Length];
+            weightChannel.Indices = new int[positionIndices.Length];
+
+            Array.Copy(positionIndices, indexChannel.Indices, positionIndices.Length);
+            Array.Copy(positionIndices, weightChannel.Indices, positionIndices.Length);
+
+            return new Tuple<VertexChannel, VertexChannel>(indexChannel, weightChannel);
+        }
+
+        VertexElementUsage GetVertexElementUsage(String semantic)
+        {
+            switch (semantic)
+            {
+                case "VERTEX":
+                    return VertexElementUsage.Position;
+                case "COLOR":
+                    return VertexElementUsage.Color;
+                case "NORMAL":
+                    return VertexElementUsage.Normal;
+                case "TEXCOORD":
+                    return VertexElementUsage.TextureCoordinate;
+                case "TEXTANGENT":
+                    return VertexElementUsage.Tangent;
+                case "TEXBINORMAL":
+                    return VertexElementUsage.Binormal;
+
+                default:                    
+                    throw new Exception("Unsupported vertex element usage");
+            }
+        }
+
+        VertexElementFormat GetVertexElementFormat(VertexSource source, String semantic)
+        {
+            switch (semantic)
+            {
+                case "VERTEX":
+                case "NORMAL":
+                case "TEXCOORD":
+                case "TEXTANGENT":
+                case "TEXBINORMAL":
+                    if (source.Stride == 2) return VertexElementFormat.Vector2;
+                    else if (source.Stride == 3) return VertexElementFormat.Vector3;
+                    else return VertexElementFormat.Vector4;
+                case "COLOR":
+                    return VertexElementFormat.Color;                
+
+                default:
+                    throw new Exception("Unknown vertex element format");
+            }
+        }
 
         #region XML Parsing
+
+        /// <summary>
+        /// Parses all the source elements of the current mesh and returns
+        /// the list of all found vertex sources.
+        /// </summary>
+        /// <param name="xmlMeshNode">XML Mesh node</param>
+        /// <returns>List of found vertex sources</returns>
+        protected List<VertexSource> ReadSources(XmlNode xmlMeshNode)
+        {
+            List<VertexSource> vertexSources = new List<VertexSource>();
+
+            XmlNodeList nodes = xmlMeshNode.SelectNodes("source");
+            if (nodes.Count == 0) return vertexSources;
+
+            foreach (XmlNode node in nodes)
+            {
+                Source source = new Source(node, true);
+                VertexSource v = new VertexSource();
+                v.Stride = source.Stride;
+                v.Data = (float[])source.Data;
+
+                node.TryGetAttribute("id", out v.GlobalID);
+                vertexSources.Add(v);
+            }
+
+            return vertexSources;
+        }
 
         /// <summary>
         /// When passed an material symbol (as used by &lt;triangles&gt;'s "material" attribute)
@@ -283,7 +423,7 @@ namespace ColladaXna.Base.Import
         /// <param name="model">Model instance with non-empty joint collection</param>
         /// <param name="jointIndices">Array of 4-d vectors representing joint indices</param>
         /// <param name="jointWeights">Array of 3-d vectors representing their respective weights</param>
-        protected static void GetJointWeightsAndIndices(XmlNode xmlMeshNode, IntermediateModel model,
+        protected static void GetJointWeightsAndIndices(XmlNode xmlMeshNode, Model model,
             out Vector4[] jointIndices, out Vector3[] jointWeights)
         {
             // Look for a skin definition that references this mesh
@@ -465,9 +605,12 @@ namespace ColladaXna.Base.Import
         /// Extracts vertex elements from a COLLADA "mesh" XML node.
         /// </summary>
         /// <param name="xmlMeshNode">mesh node within a COLLADA file</param>
-        /// <returns>float Array with xmlData</returns>
-        protected float[] GetPositions(XmlNode xmlMeshNode, String semantic)
+        /// <returns>A vertex channel</returns>
+        protected VertexChannel GetVertexChannel(XmlNode xmlMeshNode, String semantic)
         {
+            XmlNode input = xmlMeshNode.SelectSingleNode(".//input[@semantic='" + semantic + "']");
+            if (input == null) throw new Exception("No " + semantic + " Input found");            
+
             XmlNode xmlSource = FindInputSource(xmlMeshNode, semantic);
             if (xmlSource == null) throw new Exception("No " + semantic + " Source found");
 
