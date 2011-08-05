@@ -1,0 +1,105 @@
+﻿using System;
+using System.Linq;
+using COLLADA.Data.Materials;
+using COLLADA.Data.Processing.Effects;
+using Microsoft.Xna.Framework.Graphics;
+using System.IO;
+using Microsoft.Xna.Framework;
+
+namespace COLLADA.Data.Processing
+{
+    /// <summary>
+    /// Material processor for runtime application. Other than the MaterialCompiler,
+    /// which can (and should) be used in the content pipeline, this processor loads
+    /// textures from files directly (rather than compiling them) and loads existent
+    /// shaders. If a required shader does not yet exist, it is generated, if possible.
+    /// </summary>
+    public class MaterialLoader : MaterialProcessor
+    {
+        private GraphicsDevice _graphicsDevice;
+
+        public MaterialLoader(GraphicsDevice graphicsDevice)
+        {
+            _graphicsDevice = graphicsDevice;
+        }
+
+        protected override Material ProcessMaterial(Material material, 
+            IntermediateModel model, ProcessingOptions options)
+        {
+            string baseDir = Path.GetDirectoryName(model.SourceFilename);
+
+            // Adjust filename paths
+            foreach (var texture in material.Properties.OfType<TextureProperty>().Select(p => p.Texture))
+            {
+                if (Path.IsPathRooted(texture.Filename))
+                    continue;
+
+                texture.Filename = baseDir + @"\" + texture.Filename;
+            }
+
+            if (options.DisableNormalMap)
+            {
+                material.Properties.RemoveAll(property => property is NormalMap);
+            }
+
+            // TODO: replace hotfix for Normal Map + Specular Problem with real solution 
+            if (options.ModelScale != 1 && material.Properties.OfType<NormalMap>().Any())
+            {
+                ValueProperty spec = material.Properties.OfType<SpecularPower>().First();
+                //spec.Value /= options.ModelScale;
+            }
+
+            // Create external references for all textures so they can be saved            
+            foreach (var property in material.Properties.OfType<TextureProperty>())
+            {                
+                Texture2D texture = Texture2D.FromFile(_graphicsDevice, property.Texture.Filename);
+
+                property.Texture = new LoadedTextureReference(property.Texture.Filename,
+                property.Texture.TextureChannel, texture);
+
+                if (property is NormalMap)
+                {
+                    NormalMap normalMap = property as NormalMap;
+                    normalMap.Type = options.DefaultNormalMapType;
+                    normalMap.ParallaxScale = options.ParallaxScale;
+                }              
+            }
+
+            // Generate Effect
+            EffectGenerator generator = new BasicEffectGenerator();
+            EffectDescription effectDesc = generator.CreateEffect(material, model);
+
+            // Check if shader already exists
+            string fileName = effectDesc.Filename.Replace(".fx", ".xnb");
+            string filePath = options.ContentFolder + "\\" + fileName;
+
+            // If the shader does not yet exist, it has to be compiled
+            if (!File.Exists(filePath))
+            {
+#if (WINDOWS)
+                CompilerMacro[] macros = new CompilerMacro[1];
+                macros[0].Name = "WINDOWS";
+
+                // Compile effect
+                CompiledEffect effect = Effect.CompileEffectFromFile(effectDesc.Filename, macros,
+                                                                     null, CompilerOptions.None, TargetPlatform.Windows);
+
+                if (!effect.Success)
+                {
+                    throw new ApplicationException("Effect compilation failed: " + effect.ErrorsAndWarnings);
+                }
+
+                return new LoadedMaterial(material, effect);
+#endif
+#if (XBOX)
+                // Effect cannot be compiled on Xbox, thus we have to throw an exception
+                throw new ApplicationException("Effect '" + shaderName + "' does not exist");
+#endif
+            }
+            else
+            {
+                return new ReferencedMaterial(material, fileName.Replace(".xnb", ""));
+            }
+        }
+    }
+}

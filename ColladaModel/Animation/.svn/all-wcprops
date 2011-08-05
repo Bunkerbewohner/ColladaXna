@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation
+END
+JointAnimationClip.cs
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation/JointAnimationClip.cs
+END
+JointAnimationChannel.cs
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation/JointAnimationChannel.cs
+END
+JointAnimationList.cs
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation/JointAnimationList.cs
+END
+JointList.cs
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation/JointList.cs
+END
+Joint.cs
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation/Joint.cs
+END
+JointAnimation.cs
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation/JointAnimation.cs
+END
+JointAnimationKeyFrame.cs
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation/JointAnimationKeyFrame.cs
+END
+JointAnimationSampler.cs
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Animation/JointAnimationSampler.cs
+END

@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Import
+END
+GeometryImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Import/GeometryImporter.cs
+END
+SceneImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Import/SceneImporter.cs
+END
+MaterialImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Import/MaterialImporter.cs
+END
+AnimationImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Import/AnimationImporter.cs
+END
+SkeletonImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Import/SkeletonImporter.cs
+END
+LightImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Import/LightImporter.cs
+END
+IColladaImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/xna/colladamodelxna/!svn/ver/2/XNA%20Model%20Implementation/ColladaData/Import/IColladaImporter.cs
+END

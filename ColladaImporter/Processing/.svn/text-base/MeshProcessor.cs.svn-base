@@ -1,0 +1,26 @@
+﻿
+using Microsoft.Xna.Framework;
+
+namespace COLLADA.Data.Processing
+{
+    public class MeshProcessor : IColladaProcessor
+    {
+        #region IColladaProcessor Member
+
+        public IntermediateModel Process(IntermediateModel model, ProcessingOptions options)
+        {
+            if (options.ModelScale != 1)
+            {
+                foreach (var instance in model.MeshInstances)
+                {
+                    instance.AbsoluteTransform = Matrix.CreateScale(options.ModelScale)*                                                 
+                                                 instance.AbsoluteTransform;
+                }                
+            }            
+
+            return model;
+        }
+
+        #endregion
+    }
+}

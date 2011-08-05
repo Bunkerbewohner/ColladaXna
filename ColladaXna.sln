@@ -1,0 +1,83 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColladaImporter", "ColladaImporter\ColladaImporter.csproj", "{5E909955-A672-4E31-9671-E05457351A53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleGame", "SampleGame\SampleGame\SampleGame.csproj", "{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleGameContent", "SampleGame\SampleGameContent\SampleGameContent.contentproj", "{AE6C32AC-EE34-4CB8-9B4A-DA4868BE3EBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColladaModel", "ColladaModel\ColladaModel.csproj", "{F7C6B140-0429-43B6-BFAF-632598CD240C}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 6
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs26
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = ColladaImporter\\ColladaImporter.csproj
+		SccProjectName1 = ColladaImporter
+		SccLocalPath1 = ColladaImporter
+		SccProjectUniqueName2 = ColladaModel\\ColladaModel.csproj
+		SccProjectName2 = ColladaModel
+		SccLocalPath2 = ColladaModel
+		SccProjectUniqueName3 = ColladaViewer\\ColladaViewer.csproj
+		SccProjectName3 = ColladaViewer
+		SccLocalPath3 = ColladaViewer
+		SccProjectUniqueName4 = SampleGame\\SampleGame\\SampleGame.csproj
+		SccProjectName4 = SampleGame/SampleGame
+		SccLocalPath4 = SampleGame\\SampleGame
+		SccProjectUniqueName5 = SampleGame\\SampleGameContent\\SampleGameContent.contentproj
+		SccProjectName5 = SampleGame/SampleGameContent
+		SccLocalPath5 = SampleGame\\SampleGameContent
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5E909955-A672-4E31-9671-E05457351A53}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Debug|x86.ActiveCfg = Debug|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Debug|x86.Build.0 = Debug|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Release|Any CPU.ActiveCfg = Release|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Release|Mixed Platforms.Build.0 = Release|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Release|x86.ActiveCfg = Release|x86
+		{5E909955-A672-4E31-9671-E05457351A53}.Release|x86.Build.0 = Release|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Debug|x86.ActiveCfg = Debug|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Debug|x86.Build.0 = Debug|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Release|Any CPU.ActiveCfg = Release|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Release|Mixed Platforms.Build.0 = Release|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Release|x86.ActiveCfg = Release|x86
+		{FF0E41C6-B34D-44D5-BE74-A8A1A9713544}.Release|x86.Build.0 = Release|x86
+		{AE6C32AC-EE34-4CB8-9B4A-DA4868BE3EBF}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{AE6C32AC-EE34-4CB8-9B4A-DA4868BE3EBF}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{AE6C32AC-EE34-4CB8-9B4A-DA4868BE3EBF}.Debug|x86.ActiveCfg = Debug|x86
+		{AE6C32AC-EE34-4CB8-9B4A-DA4868BE3EBF}.Release|Any CPU.ActiveCfg = Release|x86
+		{AE6C32AC-EE34-4CB8-9B4A-DA4868BE3EBF}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{AE6C32AC-EE34-4CB8-9B4A-DA4868BE3EBF}.Release|x86.ActiveCfg = Release|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Debug|x86.ActiveCfg = Debug|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Debug|x86.Build.0 = Debug|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Release|Any CPU.ActiveCfg = Release|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Release|Mixed Platforms.Build.0 = Release|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Release|x86.ActiveCfg = Release|x86
+		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
