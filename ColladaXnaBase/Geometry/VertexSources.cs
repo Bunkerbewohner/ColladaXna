@@ -48,6 +48,61 @@ namespace ColladaXna.Base.Geometry
         /// defined as (1 - X - Y - Z).
         /// A weight of 0 means that no joint is used.
         /// </summary>
-        public Vector3[] JointWeights;
+        public Vector3[] JointWeights;        
+
+        /// <summary>
+        /// Determines whether this set of vertex sources contains given data type.
+        /// </summary>
+        /// <param name="type">Vertex data type</param>
+        /// <returns>True if any data of given type is contained</returns>
+        public bool Contains(VertexDataType type)
+        {
+            switch (type)
+            {
+                case VertexDataType.Position:
+                    return Positions != null && Positions.Length > 0;
+                case VertexDataType.Color:
+                    return Colors != null && Colors.Length > 0;
+                case VertexDataType.Normal:
+                    return Normals != null && Normals.Length > 0;
+                case VertexDataType.Tangent:
+                    return Tangents != null && Tangents.Length > 0;
+                case VertexDataType.Binormal:
+                    return Binormals != null && Binormals.Length > 0;
+                case VertexDataType.TexCoord:
+                    return TexCoords != null && TexCoords.Length > 0;
+                case VertexDataType.JointIndices:
+                    return JointIndices != null && JointIndices.Length > 0;
+                case VertexDataType.JointWeights:
+                    return JointWeights != null && JointWeights.Length > 0;
+                default: 
+                    return false;
+            }
+        }
+
+        public object GetElement(VertexDataType type, int i)
+        {
+            switch (type)
+            {
+                case VertexDataType.Position:
+                    return Positions[i];
+                case VertexDataType.Color:
+                    return Colors[i];
+                case VertexDataType.Normal:
+                    return Normals[i];
+                case VertexDataType.Tangent:
+                    return Tangents[i];
+                case VertexDataType.Binormal:
+                    return Binormals[i];
+                case VertexDataType.TexCoord:
+                    return TexCoords[i];
+                case VertexDataType.JointIndices:
+                    return JointIndices[i];
+                case VertexDataType.JointWeights:
+                    return JointWeights[i];
+                default:
+                    return null;
+            }
+        }
     }
 }

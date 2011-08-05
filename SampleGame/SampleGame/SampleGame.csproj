@@ -114,7 +114,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Game1.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
@@ -126,8 +125,9 @@
       <Name>ColladaModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\SampleGameContent\SampleGameContent.contentproj">
-      <Name>SampleGameContent</Name>
+      <Name>SampleGameContent %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
+      <Project>{AE6C32AC-EE34-4CB8-9B4A-DA4868BE3EBF}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

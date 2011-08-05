@@ -92,7 +92,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Geometry\Joint.cs" />
+    <Compile Include="Animation\JointAnimation.cs" />
+    <Compile Include="Animation\JointAnimationChannel.cs" />
+    <Compile Include="Animation\JointAnimationClip.cs" />
+    <Compile Include="Animation\JointAnimationKeyFrame.cs" />
+    <Compile Include="Animation\JointAnimationList.cs" />
+    <Compile Include="Animation\JointAnimationSampler.cs" />
+    <Compile Include="Geometry\JointList.cs" />
+    <Compile Include="Geometry\Mesh.cs" />
+    <Compile Include="Geometry\MeshInstance.cs" />
+    <Compile Include="Geometry\MeshPart.cs" />
+    <Compile Include="Geometry\VariableIndexBuffer.cs" />
+    <Compile Include="Geometry\VertexContainer.cs" />
+    <Compile Include="Geometry\VertexData.cs" />
+    <Compile Include="Geometry\VertexInstructions.cs" />
+    <Compile Include="Geometry\VertexSources.cs" />
+    <Compile Include="Model.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleGameContent", "Sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColladaModel", "ColladaModel\ColladaModel.csproj", "{F7C6B140-0429-43B6-BFAF-632598CD240C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColladaXnaBase", "ColladaXnaBase\ColladaXnaBase.csproj", "{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 6
@@ -76,6 +78,16 @@ Global
 		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Release|Mixed Platforms.Build.0 = Release|x86
 		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Release|x86.ActiveCfg = Release|x86
 		{F7C6B140-0429-43B6-BFAF-632598CD240C}.Release|x86.Build.0 = Release|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Debug|x86.ActiveCfg = Debug|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Debug|x86.Build.0 = Debug|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Release|Any CPU.ActiveCfg = Release|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Release|Mixed Platforms.Build.0 = Release|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Release|x86.ActiveCfg = Release|x86
+		{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
