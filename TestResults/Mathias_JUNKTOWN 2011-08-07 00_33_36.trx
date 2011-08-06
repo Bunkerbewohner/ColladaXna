@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="01a7eb1f-a96a-471a-a552-080e228a3df0" name="Mathias@JUNKTOWN 2011-08-07 00:33:36" runUser="Junktown\Mathias" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestSettings name="Local" id="a9b277e3-4af9-4f2f-84dc-a3e62857f02a">
+    <Description>These are default test settings for a local test run.</Description>
+    <Deployment enabled="false" runDeploymentRoot="Mathias_JUNKTOWN 2011-08-07 00_33_36">
+      <DeploymentItem filename="D:\Projekte\XNA\ColladaXna\ColladaXnaBase\bin\x86\Debug\ColladaXnaBase.dll" />
+    </Deployment>
+    <Execution>
+      <TestTypeSpecific />
+      <AgentRule name="Execution Agents">
+      </AgentRule>
+    </Execution>
+  </TestSettings>
+  <Times creation="2011-08-07T00:33:36.4284784+02:00" queuing="2011-08-07T00:33:36.5614861+02:00" start="2011-08-07T00:33:36.6054886+02:00" finish="2011-08-07T00:33:36.9535085+02:00" />
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" error="0" failed="1" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" passed="0" completed="0" inProgress="0" pending="0" />
+  </ResultSummary>
+  <TestDefinitions>
+    <UnitTest name="ColladaModelConstructorTest" storage="d:\projekte\xna\colladaxna\base tests\bin\debug\base tests.dll" id="336689d9-1dd2-26e6-4a58-d26fa66d35a5">
+      <Execution id="1e890b77-7704-4844-9d63-93990d055fec" />
+      <TestMethod codeBase="D:/Projekte/XNA/ColladaXna/Base Tests/bin/Debug/Base Tests.DLL" adapterTypeName="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestAdapter, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.Adapter, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" className="Base_Tests.ColladaModelTest, Base Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="ColladaModelConstructorTest" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <TestEntries>
+    <TestEntry testId="336689d9-1dd2-26e6-4a58-d26fa66d35a5" executionId="1e890b77-7704-4844-9d63-93990d055fec" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <Results>
+    <UnitTestResult executionId="1e890b77-7704-4844-9d63-93990d055fec" testId="336689d9-1dd2-26e6-4a58-d26fa66d35a5" testName="ColladaModelConstructorTest" computerName="JUNKTOWN" duration="00:00:00.0400784" startTime="2011-08-07T00:33:36.6154891+02:00" endTime="2011-08-07T00:33:36.9375076+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1e890b77-7704-4844-9d63-93990d055fec">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.IsTrue failed. D:\Projekte\XNA\ColladaXna\TestResults\Mathias_JUNKTOWN 2011-08-07 00_33_36\TestData\APC_animation.DAE does not exist</Message>
+          <StackTrace>   at Base_Tests.ColladaModelTest.ColladaModelConstructorTest() in D:\Projekte\XNA\ColladaXna\Base Tests\ColladaModelTest.cs:line 75
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+</TestRun>
