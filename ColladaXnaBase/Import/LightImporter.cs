@@ -14,7 +14,7 @@ namespace ColladaXna.Base.Import
     {
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref Model model)
+        public void Import(XmlNode xmlRoot, ColladaModel model)
         {
             XmlNodeList xmlLightInstances = xmlRoot.SelectNodes(".//instance_light");
             if (xmlLightInstances == null || xmlLightInstances.Count == 0)

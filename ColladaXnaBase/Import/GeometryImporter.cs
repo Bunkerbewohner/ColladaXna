@@ -20,7 +20,7 @@ namespace ColladaXna.Base.Import
     {
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref Model model)
+        public void Import(XmlNode xmlRoot, ColladaModel model)
         {
             // Find geometry nodes
             XmlNodeList xmlGeometries = xmlRoot.SelectNodes("library_geometries/geometry");
@@ -29,7 +29,7 @@ namespace ColladaXna.Base.Import
                 throw new ApplicationException("No geometry found");
             }
 
-            Model existingInstance = model;
+            ColladaModel existingInstance = model;
 
             model.Meshes = (from XmlNode xmlGeom in xmlGeometries 
                             where xmlGeom.SelectNodes(".//triangles|.//polygons|.//polylist").Count > 0
@@ -51,7 +51,7 @@ namespace ColladaXna.Base.Import
         /// </summary>
         /// <param name="xmlGeometryNode">XML node of the geometry</param>
         /// <exception cref="Exception">Only works with meshes</exception>        
-        Mesh ImportGeometry(XmlNode xmlGeometryNode, Model model)
+        Mesh ImportGeometry(XmlNode xmlGeometryNode, ColladaModel model)
         {
             // Find the mesh node
             XmlNode xmlMeshNode = xmlGeometryNode.SelectSingleNode(".//mesh");
@@ -424,7 +424,7 @@ namespace ColladaXna.Base.Import
         /// <param name="model">Model instance with non-empty joint collection</param>
         /// <param name="jointIndices">Array of 4-d vectors representing joint indices</param>
         /// <param name="jointWeights">Array of 3-d vectors representing their respective weights</param>
-        protected static void GetJointWeightsAndIndices(XmlNode xmlMeshNode, Model model,
+        protected static void GetJointWeightsAndIndices(XmlNode xmlMeshNode, ColladaModel model,
             out Vector4[] jointIndices, out Vector3[] jointWeights)
         {
             // Look for a skin definition that references this mesh

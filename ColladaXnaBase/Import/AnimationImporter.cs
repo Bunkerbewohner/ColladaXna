@@ -21,7 +21,7 @@ namespace ColladaXna.Base.Import
     {
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref Model model)
+        public void Import(XmlNode xmlRoot, ColladaModel model)
         {            
             // Find skin definitions. Multiple skin definitions are supported
             // but they have to work on disjoint sets (relate to different joints)
@@ -48,7 +48,7 @@ namespace ColladaXna.Base.Import
         /// vertex container of the meshes.</remarks>
         /// <param name="xmlSkin"></param>
         /// <param name="model"></param>
-        static void ImportSkin(XmlNode xmlSkin, Model model)
+        static void ImportSkin(XmlNode xmlSkin, ColladaModel model)
         {
             Mesh mesh = GetMeshFromSkin(xmlSkin, model);
             if (mesh == null)
@@ -75,7 +75,7 @@ namespace ColladaXna.Base.Import
             return joints.ContainsKey(ExtractNodeIdFromTarget(target));
         }
 
-        static void ImportAnimations(XmlNodeList xmlAnimations, Model model)
+        static void ImportAnimations(XmlNodeList xmlAnimations, ColladaModel model)
         {            
             // Joint dictionary
             Dictionary<string, Joint> joints = model.Joints.ToDictionary(joint => joint.GlobalID);
@@ -442,7 +442,7 @@ namespace ColladaXna.Base.Import
         /// <param name="xmlSkin">XML skin node</param>
         /// <param name="model">Model instance</param>
         /// <returns>Used bones with updated inverse bind-pose matrices</returns>
-        static List<Joint> GetUpdatedJointsFromSkin(XmlNode xmlSkin, Model model)
+        static List<Joint> GetUpdatedJointsFromSkin(XmlNode xmlSkin, ColladaModel model)
         {
             if (model.Joints.Count <= 1)
             {
@@ -507,7 +507,7 @@ namespace ColladaXna.Base.Import
         /// <param name="xmlSkin">XML skin node</param>
         /// <param name="model">Model instance</param>
         /// <returns>instance of Mesh or null</returns>
-        static Mesh GetMeshFromSkin(XmlNode xmlSkin, Model model)
+        static Mesh GetMeshFromSkin(XmlNode xmlSkin, ColladaModel model)
         {
             string meshId = xmlSkin.Attributes["source"].Value.Substring(1);
             XmlNode xmlGeom = xmlSkin.OwnerDocument.DocumentElement.

@@ -26,7 +26,7 @@ namespace ColladaXna.Base.Import
         /// </summary>
         /// <param name="xmlRoot">XML root node</param>
         /// <param name="model">model to store joints in</param>
-        public void Import(XmlNode xmlRoot, ref Model model)
+        public void Import(XmlNode xmlRoot, ColladaModel model)
         {            
             knownJoints.Clear();
 
@@ -58,7 +58,7 @@ namespace ColladaXna.Base.Import
         /// <param name="parent">Parent joint of joints to read</param>
         /// <param name="xmlNodes">XML joint nodes</param>
         /// <param name="model">Model instance with non-null joint collection</param>
-        void ReadJoints(Joint parent, IEnumerable<XmlNode> xmlNodes, Model model)
+        void ReadJoints(Joint parent, IEnumerable<XmlNode> xmlNodes, ColladaModel model)
         {                        
             bool jointWithoutId = false;
 

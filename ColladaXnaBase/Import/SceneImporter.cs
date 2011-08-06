@@ -12,7 +12,7 @@ namespace ColladaXna.Base.Import
     {
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref Model model)
+        public void Import(XmlNode xmlRoot, ColladaModel model)
         {
             XmlNode xmlScene = xmlRoot.SelectSingleNode("scene");
 
@@ -23,7 +23,7 @@ namespace ColladaXna.Base.Import
 
         #region Scene Importing
 
-        List<MeshInstance> ImportMeshInstances(XmlNode xmlScene, Model model)
+        List<MeshInstance> ImportMeshInstances(XmlNode xmlScene, ColladaModel model)
         {
             if (model.Meshes.Any() == false)
             {
@@ -86,7 +86,7 @@ namespace ColladaXna.Base.Import
 
         #region Helper Methods and XML Parsing
 
-        Joint GetParentJoint(XmlNode xmlNode, Model model)
+        Joint GetParentJoint(XmlNode xmlNode, ColladaModel model)
         {
             XmlNode xmlParent = xmlNode.ParentNode;
             if (xmlParent == null) return null;

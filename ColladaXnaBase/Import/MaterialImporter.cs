@@ -13,11 +13,11 @@ namespace ColladaXna.Base.Import
 {
     public class MaterialImporter : IColladaImporter
     {
-        private Model model;
+        private ColladaModel model;
 
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref Model model)
+        public void Import(XmlNode xmlRoot, ColladaModel model)
         {
             this.model = model;
 

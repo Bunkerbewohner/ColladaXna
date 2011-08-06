@@ -13,6 +13,6 @@ namespace ColladaXna.Base.Import
         /// </summary>
         /// <param name="xmlRoot">root node of COLLADA xml document</param>
         /// <param name="model">model instance</param>
-        void Import(XmlNode xmlRoot, ref Model model);
+        void Import(XmlNode xmlRoot, ColladaModel model);
     }
 }
