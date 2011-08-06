@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ColladaXna.Base.Geometry;
 using ColladaXna.Base.Animation;
+using ColladaXna.Base.Lighting;
 
 namespace ColladaXna.Base
 {

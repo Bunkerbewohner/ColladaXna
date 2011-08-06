@@ -15,6 +15,8 @@ namespace ColladaXna.Base.Geometry
 
         public int Stride;
 
+        public int Offset = 0;
+
         public float[] Data;
 
         public int Count { get { return Data.Length / Stride; } }    

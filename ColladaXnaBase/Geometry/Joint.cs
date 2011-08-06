@@ -11,7 +11,7 @@ namespace ColladaXna.Base.Geometry
     /// Representation of a joint of a skeleton. 
     /// Sometimes also called "Bone".
     /// </summary>
-    public class Joint
+    public class Joint : IAddress
     {
         /// <summary>
         /// Counter for generic joint names (if no name is given)

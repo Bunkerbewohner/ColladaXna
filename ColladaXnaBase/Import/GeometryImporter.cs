@@ -50,7 +50,7 @@ namespace ColladaXna.Base.Import
         /// Imports a piece of geometry, but does only support meshes, no NURBS.
         /// </summary>
         /// <param name="xmlGeometryNode">XML node of the geometry</param>
-        /// <exception cref="NotFoundException">Only works with meshes</exception>        
+        /// <exception cref="Exception">Only works with meshes</exception>        
         Mesh ImportGeometry(XmlNode xmlGeometryNode, Model model)
         {
             // Find the mesh node
@@ -187,8 +187,9 @@ namespace ColladaXna.Base.Import
                     vertexChannels.Add(jointChannels.Item2);
                 }
 
-                part.Vertices = VertexContainer.CreateVertexContainer(vertexChannels, out part.Indices, 
-                    out mesh.Bounds);
+                part.Vertices = new VertexContainer(vertexChannels);
+                part.Indices = part.Vertices.Indices;
+                
                 mesh.VertexContainers[i] = part.Vertices;
                 mesh.MeshParts[i] = part;
             }
@@ -336,7 +337,7 @@ namespace ColladaXna.Base.Import
 
             if (xmlInstanceMaterial == null)
             {
-                throw new NotFoundException("No Material Instance '" + materialSymbol + "' found", xmlNode);
+                throw new Exception("No Material Instance '" + materialSymbol + "' found");
             }
 
             string materialId = xmlInstanceMaterial.Attributes["target"].Value.Substring(1);
@@ -345,7 +346,7 @@ namespace ColladaXna.Base.Import
 
             if (xmlMaterial == null)
             {
-                throw new NotFoundException("No Material Definition with id '" + materialId + "' found", xmlNode);
+                throw new Exception("No Material Definition with id '" + materialId + "' found");
             }
 
             if (xmlMaterial.Attributes["name"] != null)
@@ -364,12 +365,12 @@ namespace ColladaXna.Base.Import
         {
             XmlNode input = xmlMeshNode.SelectSingleNode(".//input[@semantic='" + semantic + "']");
             if (input == null)
-                throw new NotFoundException("No " + semantic + " Input found", xmlMeshNode);
+                throw new Exception("No " + semantic + " Input found");
 
             string sourceId = input.Attributes["source"].Value.Substring(1);
             XmlNode source = xmlMeshNode.SelectSingleNode("source[@id='" + sourceId + "']");
             if (source == null)
-                throw new NotFoundException("No Source found for " + semantic + " Input", input);
+                throw new Exception("No Source found for " + semantic + " Input");
 
             return source;
         }
@@ -398,8 +399,8 @@ namespace ColladaXna.Base.Import
         {
             XmlNode xmlAccessor = xmlSource.SelectSingleNode(".//accessor");
             if (xmlAccessor == null)
-                throw new NotFoundException("No input accessor for Source '" +
-                    xmlSource.Attributes["id"].Value + "' found", xmlSource);
+                throw new Exception("No input accessor for Source '" +
+                    xmlSource.Attributes["id"].Value + "' found");
 
             return Int32.Parse(xmlAccessor.Attributes["stride"].Value);
         }
@@ -599,260 +600,6 @@ namespace ColladaXna.Base.Import
             // Check data
             bool valid = jointIndices.All(v => Math.Abs((v.X + v.Y + v.Z + (1 - v.X - v.Y - v.Z)) - 1) < 0.001f);
             ContentAssert.IsTrue(valid, "All joint weights must sum up to 1f");            
-        }
-
-        /// <summary>
-        /// Extracts vertex elements from a COLLADA "mesh" XML node.
-        /// </summary>
-        /// <param name="xmlMeshNode">mesh node within a COLLADA file</param>
-        /// <returns>A vertex channel</returns>
-        protected VertexChannel GetVertexChannel(XmlNode xmlMeshNode, String semantic)
-        {
-            XmlNode input = xmlMeshNode.SelectSingleNode(".//input[@semantic='" + semantic + "']");
-            if (input == null) throw new Exception("No " + semantic + " Input found");            
-
-            XmlNode xmlSource = FindInputSource(xmlMeshNode, semantic);
-            if (xmlSource == null) throw new Exception("No " + semantic + " Source found");
-
-            XmlNode xmlElements = xmlSource.SelectSingleNode("float_array");
-            int numElements = Int32.Parse(xmlElements.Attributes["count"].Value);
-            int stride = GetSourceStride(xmlSource);            
-
-            float[] data = XmlUtil.ParseFloats(xmlElements.InnerText);
-
-
-            Vector3[] positions = new Vector3[numElements / stride];
-
-            for (int i = 0; i < positions.Length; ++i)
-            {
-                int j = stride * i;
-                positions[i] = new Vector3(data[j], data[j + 1], data[j + 2]);
-            }
-
-            return positions;
-        }
-
-        /// <summary>
-        /// Extracts vertex positions from a COLLADA "mesh" XML node.
-        /// 3-dimensional position vectors are assumed.
-        /// </summary>
-        /// <param name="xmlMeshNode">mesh node within a COLLADA file</param>
-        /// <returns>Vertex Array with 3D xmlData</returns>
-        protected Vector3[] GetPositions(XmlNode xmlMeshNode)
-        {
-            XmlNode xmlSource = FindInputSource(xmlMeshNode, "POSITION");
-            if (xmlSource == null) throw new NotFoundException("No POSITION Source found",
-                xmlMeshNode);
-
-            XmlNode xmlPositions = xmlSource.SelectSingleNode("float_array");
-            int numPositions = Int32.Parse(xmlPositions.Attributes["count"].Value);
-            int stride = GetSourceStride(xmlSource);
-            if (stride != 3)
-            {
-                throw new FormatNotSupportedException("Unsupported position format (must be 3d)",
-                    xmlPositions);
-            }
-
-            float[] data = XmlUtil.ParseFloats(xmlPositions.InnerText);
-            Vector3[] positions = new Vector3[numPositions / stride];
-
-            for (int i = 0; i < positions.Length; ++i)
-            {
-                int j = stride * i;
-                positions[i] = new Vector3(data[j], data[j + 1], data[j + 2]);
-            }
-
-            return positions;
-        }
-
-        protected Color[] GetColors(XmlNode xmlMeshNode)
-        {
-            try
-            {
-                XmlNode xmlSource = FindInputSource(xmlMeshNode, "COLOR");                
-                XmlNode xmlColors = xmlSource.SelectSingleNode("float_array");
-                int numColors = Int32.Parse(xmlColors.Attributes["count"].Value);
-                int stride = GetSourceStride(xmlSource);
-                if (stride != 3 && stride != 4)
-                {
-                    throw new FormatNotSupportedException("Unsupported color format (must be 3d or 4d)",
-                        xmlColors);
-                }
-
-                float[] data = XmlUtil.ParseFloats(xmlColors.InnerText);
-                Color[] colors = new Color[numColors / stride];
-
-                for (int i = 0; i < colors.Length; ++i)
-                {
-                    int j = stride * i;
-                    if (stride == 4) colors[i] = new Color(data[j], data[j + 1], data[j + 2], data[j + 3]);
-                    else colors[i] = new Color(data[j], data[j + 1], data[j + 2]);
-                }
-
-                return colors;
-            }
-            catch (NotFoundException ex)
-            {
-                // No Color Input or Source found => no colors
-                return new Color[0];
-            }
-        }
-
-        /// <summary>
-        /// Extracts vertex normals from a COLLADA "mesh" XML node.
-        /// 3-dimensional normal vectors are assumed.
-        /// </summary>
-        /// <param name="xmlMeshNode">mesh node within a COLLADA file</param>
-        /// <returns>Vertex Array with 3D normals. The array is empty if no normals were found</returns>
-        protected Vector3[] GetNormals(XmlNode xmlMeshNode)
-        {
-            try
-            {
-                XmlNode xmlSource = FindInputSource(xmlMeshNode, "NORMAL");
-
-                XmlNode xmlNormals = xmlSource.SelectSingleNode("float_array");
-                int numNormals = Int32.Parse(xmlNormals.Attributes["count"].Value);
-                int stride = GetSourceStride(xmlSource);
-                if (stride != 3)
-                {
-                    throw new FormatNotSupportedException("Unsupported normal format (must be 3d)",
-                        xmlNormals);
-                }
-
-                float[] data = XmlUtil.ParseFloats(xmlNormals.InnerText);
-                Vector3[] positions = new Vector3[numNormals / stride];
-
-                for (int i = 0; i < positions.Length; ++i)
-                {
-                    int j = stride * i;
-                    positions[i] = new Vector3(data[j], data[j + 1], data[j + 2]);
-                }
-
-                return positions;
-            }
-            catch (NotFoundException ex)
-            {
-                // No Normal Input or Source found => no normals
-                return new Vector3[0];
-            }
-        }
-
-        /// <summary>
-        /// Extracts texture coordinates from a COLLADA "mesh" XML node.        
-        /// </summary>
-        /// <remarks>This method considers only UV/XY/ST data and discards W/Z/P.</remarks>
-        /// <param name="xmlMeshNode">mesh node within a collada file</param>
-        /// <returns>Texture coordinate array. The array is empty if no texture coordinate were found</returns>
-        protected Vector2[] GetTextureCoordinates(XmlNode xmlMeshNode)
-        {
-            try
-            {
-                XmlNode xmlSource = FindInputSource(xmlMeshNode, "TEXCOORD");
-                if (xmlSource == null) return new Vector2[0];
-
-                XmlNode xmlData = xmlSource.SelectSingleNode("float_array");
-                int numData = Int32.Parse(xmlData.Attributes["count"].Value);
-                int stride = GetSourceStride(xmlSource);
-                if (stride < 2)
-                {
-                    throw new FormatNotSupportedException("Unsupported texture coordinate format. Must be at least 2d.",
-                        xmlData);
-                }
-
-                float[] data = XmlUtil.ParseFloats(xmlData.InnerText);
-                Vector2[] texCoords = new Vector2[numData / stride];
-
-                for (int i = 0; i < texCoords.Length; ++i)
-                {
-                    int j = stride * i;
-                    texCoords[i] = new Vector2(data[j], 1.0f - data[j + 1]);
-                }
-
-                return texCoords;
-            }
-            catch (NotFoundException ex)
-            {
-                // No Texture coordinates found
-                return new Vector2[0];
-            }
-        }
-
-        /// <summary>
-        /// Extracts vertex tangents from a COLLADA "mesh" XML node.
-        /// 3-dimensional tangent vectors are assumed.
-        /// </summary>
-        /// <param name="xmlMeshNode">mesh node within a COLLADA file</param>
-        /// <returns>Tangent Array. Array is empty if no tangents were found</returns>
-        protected Vector3[] GetTangents(XmlNode xmlMeshNode)
-        {
-            try
-            {
-                XmlNode xmlSource = FindInputSource(xmlMeshNode, "TEXTANGENT");
-                XmlNode xmlData = xmlSource.SelectSingleNode("float_array");
-                int numData = Int32.Parse(xmlData.Attributes["count"].Value);
-                int stride = GetSourceStride(xmlSource);
-
-                if (stride != 3)
-                {
-                    throw new FormatNotSupportedException("Unsupported tangent format (must be 3d)",
-                        xmlData);
-                }
-
-                float[] data = XmlUtil.ParseFloats(xmlData.InnerText);
-                Vector3[] tangents = new Vector3[numData / stride];
-
-                for (int i = 0; i < tangents.Length; ++i)
-                {
-                    int j = stride * i;
-                    tangents[i] = new Vector3(data[j], data[j + 1], data[j + 2]);
-                }
-
-                return tangents;
-            }
-            catch (NotFoundException ex)
-            {
-                // No Tangents found
-                return new Vector3[0];
-            }
-        }
-
-        /// <summary>
-        /// Extracts vertex binormals from a COLLADA "mesh" XML node.
-        /// 3-dimensional binormal vectors are assumed.
-        /// </summary>
-        /// <param name="xmlMeshNode">mesh node within a COLLADA file</param>
-        /// <returns>Binormal Array. Array is empty if no binormals were found</returns>
-        protected Vector3[] GetBinormals(XmlNode xmlMeshNode)
-        {
-            try
-            {
-                XmlNode xmlSource = FindInputSource(xmlMeshNode, "TEXBINORMAL");
-                XmlNode xmlData = xmlSource.SelectSingleNode("float_array");
-                int numData = Int32.Parse(xmlData.Attributes["count"].Value);
-                int stride = GetSourceStride(xmlSource);
-
-                if (stride != 3)
-                {
-                    throw new FormatNotSupportedException("Unsupported tangent format (must be 3d)",
-                        xmlData);
-                }
-
-                float[] data = XmlUtil.ParseFloats(xmlData.InnerText);
-                Vector3[] binormals = new Vector3[numData / stride];
-
-                for (int i = 0; i < binormals.Length; ++i)
-                {
-                    int j = stride * i;
-                    binormals[i] = new Vector3(data[j], data[j + 1], data[j + 2]);
-                }
-
-                return binormals;
-            }
-            catch (NotFoundException ex)
-            {
-                // No Binormals found
-                return new Vector3[0];
-            }
         }
 
         #endregion

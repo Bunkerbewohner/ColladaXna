@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using Omi.Xna.Collada.Model;
-using Omi.Xna.Collada.Model.Animation;
-using Omi.Xna.Collada.Importer.Exceptions;
-using Omi.Xna.Collada.Importer.Util;
 using Microsoft.Xna.Framework;
+using ColladaXna.Base.Geometry;
+using ColladaXna.Base.Util;
 
-namespace Omi.Xna.Collada.Importer.Import
+namespace ColladaXna.Base.Import
 {
     /// <summary>
     /// This class imports the joint structure of the model.
@@ -28,7 +26,7 @@ namespace Omi.Xna.Collada.Importer.Import
         /// </summary>
         /// <param name="xmlRoot">XML root node</param>
         /// <param name="model">model to store joints in</param>
-        public void Import(XmlNode xmlRoot, ref IntermediateModel model)
+        public void Import(XmlNode xmlRoot, ref Model model)
         {            
             knownJoints.Clear();
 
@@ -60,7 +58,7 @@ namespace Omi.Xna.Collada.Importer.Import
         /// <param name="parent">Parent joint of joints to read</param>
         /// <param name="xmlNodes">XML joint nodes</param>
         /// <param name="model">Model instance with non-null joint collection</param>
-        void ReadJoints(Joint parent, IEnumerable<XmlNode> xmlNodes, IntermediateModel model)
+        void ReadJoints(Joint parent, IEnumerable<XmlNode> xmlNodes, Model model)
         {                        
             bool jointWithoutId = false;
 
@@ -162,8 +160,8 @@ namespace Omi.Xna.Collada.Importer.Import
                 
                 if (xmlNode == null)
                 {
-                    throw new NotFoundException("node with ID '" + nodeId + "' could " + 
-                        " not be found in the document", skeletonNode);
+                    throw new Exception("node with ID '" + nodeId + "' could " + 
+                        " not be found in the document");
                 }
 
                 nodes.Add(xmlNode);

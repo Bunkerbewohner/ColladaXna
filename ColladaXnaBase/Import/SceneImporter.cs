@@ -1,21 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using Omi.Xna.Collada.Importer.Exceptions;
-using Omi.Xna.Collada.Model;
-using Omi.Xna.Collada.Model.Geometry;
-using Omi.Xna.Collada.Importer.Util;
 using Microsoft.Xna.Framework;
-using Omi.Xna.Collada.Model.Animation;
 using System;
+using ColladaXna.Base.Geometry;
+using ColladaXna.Base.Util;
 
-namespace Omi.Xna.Collada.Importer.Import
+namespace ColladaXna.Base.Import
 {
     public class SceneImporter : IColladaImporter
     {
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref IntermediateModel model)
+        public void Import(XmlNode xmlRoot, ref Model model)
         {
             XmlNode xmlScene = xmlRoot.SelectSingleNode("scene");
 
@@ -26,7 +23,7 @@ namespace Omi.Xna.Collada.Importer.Import
 
         #region Scene Importing
 
-        List<MeshInstance> ImportMeshInstances(XmlNode xmlScene, IntermediateModel model)
+        List<MeshInstance> ImportMeshInstances(XmlNode xmlScene, Model model)
         {
             if (model.Meshes.Any() == false)
             {
@@ -79,7 +76,7 @@ namespace Omi.Xna.Collada.Importer.Import
             // Check if any meshes have been found
             if (meshes.Count == 0)
             {
-                throw new NotFoundException("No mesh instances have been found", xmlScene);
+                throw new Exception("No mesh instances have been found");
             }
 
             return meshes;
@@ -89,7 +86,7 @@ namespace Omi.Xna.Collada.Importer.Import
 
         #region Helper Methods and XML Parsing
 
-        Joint GetParentJoint(XmlNode xmlNode, IntermediateModel model)
+        Joint GetParentJoint(XmlNode xmlNode, Model model)
         {
             XmlNode xmlParent = xmlNode.ParentNode;
             if (xmlParent == null) return null;
@@ -238,14 +235,14 @@ namespace Omi.Xna.Collada.Importer.Import
         {
             XmlNode xmlSceneInstance = xmlScene.SelectSingleNode("instance_visual_scene");
             if (xmlSceneInstance == null)
-                throw new NotFoundException("No visual scene instance found", xmlScene);
+                throw new Exception("No visual scene instance found");
 
             string sceneId = xmlSceneInstance.Attributes["url"].Value.Substring(1);
             XmlNode xmlRoot = xmlScene.OwnerDocument.DocumentElement;
             XmlNode xmlVisualScene = xmlRoot.SelectSingleNode("library_visual_scenes/" +
                 "visual_scene[@id='" + sceneId + "']");
             if (xmlVisualScene == null)
-                throw new NotFoundException("Visual Scene '" + sceneId + "' not found", xmlScene);
+                throw new Exception("Visual Scene '" + sceneId + "' not found");
 
             return xmlVisualScene;
         }

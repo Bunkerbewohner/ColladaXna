@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using Omi.Xna.Collada.Model;
-using Omi.Xna.Collada.Model.Animation;
-using Omi.Xna.Collada.Importer.Exceptions;
-using Omi.Xna.Collada.Model.Geometry;
 using System.Diagnostics;
-using Omi.Xna.Collada.Importer.Util;
 using Microsoft.Xna.Framework;
-using Omi.Xna.Collada.Model.Misc;
+using ColladaXna.Base.Geometry;
+using ColladaXna.Base.Animation;
+using ColladaXna.Base.Util;
 
-namespace Omi.Xna.Collada.Importer.Import
+namespace ColladaXna.Base.Import
 {
     /// <summary>
     /// Importer for animation data of COLLADA models.
@@ -24,7 +21,7 @@ namespace Omi.Xna.Collada.Importer.Import
     {
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref IntermediateModel model)
+        public void Import(XmlNode xmlRoot, ref Model model)
         {            
             // Find skin definitions. Multiple skin definitions are supported
             // but they have to work on disjoint sets (relate to different joints)
@@ -51,12 +48,12 @@ namespace Omi.Xna.Collada.Importer.Import
         /// vertex container of the meshes.</remarks>
         /// <param name="xmlSkin"></param>
         /// <param name="model"></param>
-        static void ImportSkin(XmlNode xmlSkin, IntermediateModel model)
+        static void ImportSkin(XmlNode xmlSkin, Model model)
         {
             Mesh mesh = GetMeshFromSkin(xmlSkin, model);
             if (mesh == null)
             {
-                throw new NotFoundException("Mesh referenced by skin not found", xmlSkin);
+                throw new Exception("Mesh referenced by skin not found");
             }
 
             // TODO: Take bind_shape_matrix into consideration for animation
@@ -78,7 +75,7 @@ namespace Omi.Xna.Collada.Importer.Import
             return joints.ContainsKey(ExtractNodeIdFromTarget(target));
         }
 
-        static void ImportAnimations(XmlNodeList xmlAnimations, IntermediateModel model)
+        static void ImportAnimations(XmlNodeList xmlAnimations, Model model)
         {            
             // Joint dictionary
             Dictionary<string, Joint> joints = model.Joints.ToDictionary(joint => joint.GlobalID);
@@ -445,7 +442,7 @@ namespace Omi.Xna.Collada.Importer.Import
         /// <param name="xmlSkin">XML skin node</param>
         /// <param name="model">Model instance</param>
         /// <returns>Used bones with updated inverse bind-pose matrices</returns>
-        static List<Joint> GetUpdatedJointsFromSkin(XmlNode xmlSkin, IntermediateModel model)
+        static List<Joint> GetUpdatedJointsFromSkin(XmlNode xmlSkin, Model model)
         {
             if (model.Joints.Count <= 1)
             {
@@ -510,7 +507,7 @@ namespace Omi.Xna.Collada.Importer.Import
         /// <param name="xmlSkin">XML skin node</param>
         /// <param name="model">Model instance</param>
         /// <returns>instance of Mesh or null</returns>
-        static Mesh GetMeshFromSkin(XmlNode xmlSkin, IntermediateModel model)
+        static Mesh GetMeshFromSkin(XmlNode xmlSkin, Model model)
         {
             string meshId = xmlSkin.Attributes["source"].Value.Substring(1);
             XmlNode xmlGeom = xmlSkin.OwnerDocument.DocumentElement.

@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Linq;
 using System.Xml;
-using Omi.Xna.Collada.Model;
-using Omi.Xna.Collada.Model.Lighting;
-using Omi.Xna.Collada.Importer.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Omi.Xna.Collada.Importer.Import
+namespace ColladaXna.Base.Import
 {
-    using DirectionalLight = Omi.Xna.Collada.Model.Lighting.DirectionalLight;
+    using DirectionalLight = ColladaXna.Base.Lighting.DirectionalLight;
+    using ColladaXna.Base.Lighting;
+    using ColladaXna.Base.Util;
 
     public class LightImporter : IColladaImporter
     {
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref IntermediateModel model)
+        public void Import(XmlNode xmlRoot, ref Model model)
         {
             XmlNodeList xmlLightInstances = xmlRoot.SelectNodes(".//instance_light");
             if (xmlLightInstances == null || xmlLightInstances.Count == 0)
@@ -80,8 +79,7 @@ namespace Omi.Xna.Collada.Importer.Import
             XmlNode xmlNode = xmlTechnique.SelectSingleNode("directional|ambient|point|spot");
             
             Light light;
-            int countDirectional = 0;
-            int countAmbient = 0;
+            int countDirectional = 0;            
 
             switch (xmlNode.Name)
             {

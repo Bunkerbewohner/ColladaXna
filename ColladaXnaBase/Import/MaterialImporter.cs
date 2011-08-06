@@ -2,24 +2,22 @@
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using Omi.Xna.Collada.Importer.Exceptions;
-using Omi.Xna.Collada.Model;
-using Omi.Xna.Collada.Model.Materials;
-using Omi.Xna.Collada.Importer.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text.RegularExpressions;
 using System.IO;
+using ColladaXna.Base.Util;
+using ColladaXna.Base.Materials;
 
-namespace Omi.Xna.Collada.Importer.Import
+namespace ColladaXna.Base.Import
 {
     public class MaterialImporter : IColladaImporter
     {
-        private IntermediateModel model;
+        private Model model;
 
         #region IColladaImporter Member
 
-        public void Import(XmlNode xmlRoot, ref IntermediateModel model)
+        public void Import(XmlNode xmlRoot, ref Model model)
         {
             this.model = model;
 
@@ -47,8 +45,8 @@ namespace Omi.Xna.Collada.Importer.Import
             XmlNode xmlEffect = FindUsedEffect(xmlMaterialNode);
             if (xmlEffect == null)
             {
-                throw new NotFoundException("No Effect found for Material '" +
-                    material.Name + "'", xmlMaterialNode);
+                throw new Exception("No Effect found for Material '" +
+                    material.Name + "'");
             }
 
             // read data definition per COLLADA common profile
@@ -170,11 +168,11 @@ namespace Omi.Xna.Collada.Importer.Import
         {
             XmlNode xmlTechnique = xmlEffect.SelectSingleNode("profile_COMMON/technique");
             if (xmlTechnique == null)
-                throw new NotFoundException("No 'common' Technique found in Effect", xmlEffect);
+                throw new Exception("No 'common' Technique found in Effect");
 
             XmlNode node = xmlTechnique.SelectSingleNode("phong|blinn|constant|lambert");
             if (node == null)
-                throw new NotFoundException("No supported material technique found", xmlTechnique);
+                throw new Exception("No supported material technique found");
 
             // Save lighting model            
             if (node.Name.Equals("phong"))
@@ -264,8 +262,7 @@ namespace Omi.Xna.Collada.Importer.Import
                         break;
 
                     default:
-                        throw new FormatNotSupportedException("Unsupported transparency" +
-                            " format", xmlTransparent);
+                        throw new Exception("Unsupported transparency format");
                 }
 
                 // Check for cases where transparency was given with wrong default mode
@@ -368,8 +365,7 @@ namespace Omi.Xna.Collada.Importer.Import
             {
                 float[] values = XmlUtil.ParseFloats(xmlColor.InnerText);
                 if (values.Length < 3 || values.Length > 4)
-                    throw new FormatNotSupportedException("Unsupported Color format encountered",
-                        xmlColor);
+                    throw new Exception("Unsupported Color format encountered");
 
                 if (values.Length == 4)
                 {
@@ -400,7 +396,7 @@ namespace Omi.Xna.Collada.Importer.Import
                     XmlNode surfaceRef = xmlEffect.SelectSingleNode(".//newparam[@sid='" + surfaceId +
                                                                     "']/surface/init_from");
                     if (surfaceRef == null)
-                        throw new NotFoundException("No image reference for texture found", xmlTexture);
+                        throw new Exception("No image reference for texture found");
                     
                     imageId = surfaceRef.InnerText.Trim();
                 }
@@ -414,7 +410,7 @@ namespace Omi.Xna.Collada.Importer.Import
                 XmlNode imageInitFrom = root.SelectSingleNode("library_images/image[@id='" +
                     imageId + "']/init_from");
                 if (imageInitFrom == null)
-                    throw new NotFoundException("Image not found: " + imageId, xmlTexture);
+                    throw new Exception("Image not found: " + imageId);
 
                 texture.Filename = imageInitFrom.InnerText.Trim();
                 texture.Filename = texture.Filename.Replace("file://", "");
