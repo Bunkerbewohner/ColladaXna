@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="4b2086b1-c354-406d-908b-1ace94350e3a" name="Mathias@JUNKTOWN 2011-08-07 20:52:10" runUser="Junktown\Mathias" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestSettings name="Local" id="a9b277e3-4af9-4f2f-84dc-a3e62857f02a">
+    <Description>These are default test settings for a local test run.</Description>
+    <Deployment enabled="false" runDeploymentRoot="Mathias_JUNKTOWN 2011-08-07 20_52_10">
+      <DeploymentItem filename="D:\Projekte\XNA\ColladaXna\ColladaXnaBase\bin\x86\Debug\ColladaXnaBase.dll" />
+    </Deployment>
+    <Execution>
+      <TestTypeSpecific />
+      <AgentRule name="Execution Agents">
+      </AgentRule>
+    </Execution>
+  </TestSettings>
+  <Times creation="2011-08-07T20:52:10.5171965+02:00" queuing="2011-08-07T20:52:10.5421979+02:00" start="2011-08-07T20:52:10.5481983+02:00" finish="2011-08-07T20:52:11.0532272+02:00" />
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" error="0" failed="1" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" passed="0" completed="0" inProgress="0" pending="0" />
+  </ResultSummary>
+  <TestDefinitions>
+    <UnitTest name="SceneImportTest" storage="d:\projekte\xna\colladaxna\base tests\bin\debug\base tests.dll" id="f01707f7-3d12-8ce6-a2ef-33e8a2ef7a4d">
+      <Execution id="39e17431-c6f2-44d5-aebe-f7359a90ee15" />
+      <TestMethod codeBase="D:/Projekte/XNA/ColladaXna/Base Tests/bin/Debug/Base Tests.DLL" adapterTypeName="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestAdapter, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.Adapter, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" className="Base_Tests.SceneImporterTest, Base Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="SceneImportTest" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <TestEntries>
+    <TestEntry testId="f01707f7-3d12-8ce6-a2ef-33e8a2ef7a4d" executionId="39e17431-c6f2-44d5-aebe-f7359a90ee15" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <Results>
+    <UnitTestResult executionId="39e17431-c6f2-44d5-aebe-f7359a90ee15" testId="f01707f7-3d12-8ce6-a2ef-33e8a2ef7a4d" testName="SceneImportTest" computerName="JUNKTOWN" startTime="2011-08-07T20:52:10.5501984+02:00" endTime="2011-08-07T20:52:10.7602104+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="39e17431-c6f2-44d5-aebe-f7359a90ee15">
+      <Output>
+        <ErrorInfo>
+          <Message>Class Initialization method Base_Tests.SceneImporterTest.Init threw exception. System.Exception: System.Exception: No meshes found.</Message>
+          <StackTrace>    at ColladaXna.Base.Import.SceneImporter.ImportMeshInstances(XmlNode xmlScene, ColladaModel model) in D:\Projekte\XNA\ColladaXna\ColladaXnaBase\Import\SceneImporter.cs:line 30
+   at ColladaXna.Base.Import.SceneImporter.Import(XmlNode xmlRoot, ColladaModel model) in D:\Projekte\XNA\ColladaXna\ColladaXnaBase\Import\SceneImporter.cs:line 19
+   at Base_Tests.SceneImporterTest.Init(TestContext context) in D:\Projekte\XNA\ColladaXna\Base Tests\SceneImporterTest.cs:line 27
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+</TestRun>

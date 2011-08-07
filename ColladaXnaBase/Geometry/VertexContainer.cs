@@ -79,6 +79,9 @@ namespace ColladaXna.Base.Geometry
             if (inputChannels.Any(c => c.Description.VertexElementUsage == VertexElementUsage.Position) == false)
                 throw new ArgumentException("Geometry has not all needed information. At least Positions are necessary!");
 
+            // Convert Colors to single values, if necessary
+            ConvertColorChannels(inputChannels);
+
             // Number of floats per vertex
             _vertexSize = CalculateVertexSize(inputChannels);
             
@@ -115,7 +118,7 @@ namespace ColladaXna.Base.Geometry
                     foreach (VertexChannel channel in inputChannels)
                     {
                         float[] elementData = new float[channel.Source.Stride];
-                        channel.GetValue(i, ref elementData, 0);
+                        channel.GetValue(i, ref elementData, 0);                        
                         vbuffer.AddRange(elementData);
                     }                                                                                
 
@@ -144,7 +147,7 @@ namespace ColladaXna.Base.Geometry
                 VertexElement desc = new VertexElement(offset, inputChannel.Description.VertexElementFormat, 
                     inputChannel.Description.VertexElementUsage, inputChannel.Description.UsageIndex);
 
-                VertexChannel newChannel = new VertexChannel(newSource, inputChannel.Description);
+                VertexChannel newChannel = new VertexChannel(newSource, desc);
                 _vertexChannels.Add(newChannel);
 
                 offset += newSource.Stride;
@@ -162,6 +165,64 @@ namespace ColladaXna.Base.Geometry
             _indices = indexList.ToArray();            
         }
 
+        /// <summary>
+        /// Converts input channels that are used for colors from Vector3/Vector4
+        /// to single float format, if necessary.
+        /// </summary>
+        /// <param name="inputChannels">Vertex Channels as read from COLLADA file</param>
+        private void ConvertColorChannels(List<VertexChannel> inputChannels)
+        {
+            foreach (VertexChannel channel in inputChannels)
+            {
+                var usage = channel.Description.VertexElementUsage;
+                var format = channel.Description.VertexElementFormat;
+
+                if (usage != VertexElementUsage.Color) continue; // only relevant for colors
+                if (format == VertexElementFormat.Single) continue; // nothing to do
+
+                // Create updated vertex element description where each element is a single
+                VertexElement newDesc = new VertexElement()
+                {
+                    Offset = 0,
+                    UsageIndex = channel.Description.UsageIndex,
+                    VertexElementFormat = VertexElementFormat.Single,
+                    VertexElementUsage = VertexElementUsage.Color
+                };
+
+                // Old stride is 3 or 4 (corresponding to Vector3 or Vector4)
+                int oldStride = channel.Source.Stride;
+                float[] oldData = channel.Source.Data;
+
+                // Create new source where each color is only represented by one single
+                VertexSource newSource = new VertexSource();
+                newSource.Stride = 1; // one float per color                                
+                newSource.Data = new float[oldData.Length / oldStride];
+
+                for (int i = 0; i < newSource.Data.Length; i++)
+                {
+                    // project start index to old data set (with $oldStride components per color)
+                    int j = i * oldStride;
+
+                    // Construct color from three or four floats in range [0,1]
+                    Color color = (oldStride == 3) ?
+                        new Color(oldData[j + 0], oldData[j + 1], oldData[j + 2]) :
+                        new Color(oldData[j + 0], oldData[j + 1], oldData[j + 2], oldData[j + 3]);
+
+                    // Transform the 4 color bytes to a float
+                    // The resulting float might not be a valid float number; but only the bytes
+                    // are important for usage later on the graphics card
+                    byte[] bytes = BitConverter.GetBytes(((Color)color).PackedValue);
+                    float colorFloat = BitConverter.ToSingle(bytes, 0);
+
+                    newSource.Data[i] = colorFloat;
+                }
+
+                // Update description and source of channel
+                channel.Description = newDesc;
+                channel.Source = newSource;
+            }
+        }
+
         //=====================================================================
         #region Vertex Buffer creation for run-time representation
 
@@ -176,7 +237,7 @@ namespace ColladaXna.Base.Geometry
 
             foreach (VertexChannel channel in channels)
             {
-                combinedSize += channel.Source.Stride;
+                combinedSize += channel.Source.Stride;                
             }
 
             return combinedSize;

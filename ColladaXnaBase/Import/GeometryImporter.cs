@@ -299,7 +299,10 @@ namespace ColladaXna.Base.Import
                     else if (source.Stride == 3) return VertexElementFormat.Vector3;
                     else return VertexElementFormat.Vector4;
                 case "COLOR":
-                    return VertexElementFormat.Color;                
+                    if (source.Stride == 3) return VertexElementFormat.Vector3;
+                    else if (source.Stride == 4) return VertexElementFormat.Vector4;
+                    else if (source.Stride == 1) return VertexElementFormat.Single;
+                    else throw new Exception("Unsupported Color format");
 
                 default:
                     throw new Exception("Unknown vertex element format");

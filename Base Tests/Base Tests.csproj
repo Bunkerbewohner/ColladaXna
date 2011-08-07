@@ -65,6 +65,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SceneImporterTest.cs" />
     <Compile Include="SkeletonImporterTest.cs" />
+    <Compile Include="TestBase.cs" />
     <Compile Include="TestDataLoader.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -74,7 +75,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestData\APC_animation.DAE" />
+    <None Include="TestData\APC_animation.DAE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\vertex-painted-box.dae">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -34,6 +34,8 @@ namespace SampleGame
         List<IModel> models = new List<IModel>();
         int selectedModel = 1;
 
+        Model stdModel;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -70,6 +72,17 @@ namespace SampleGame
         /// </summary>
         protected override void LoadContent()
         {
+            stdModel = Content.Load<Model>("3ds Max/APC/APC_std");
+            foreach (Microsoft.Xna.Framework.Graphics.ModelMesh mesh in stdModel.Meshes)
+            {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.EnableDefaultLighting();
+                    effect.TextureEnabled = true;
+                    effect.PreferPerPixelLighting = true;
+                }
+            }
+
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -94,7 +107,7 @@ namespace SampleGame
                     new StaticModel(modelData) as IModel;
 
                 models.Add(model);
-            }
+            }            
 
             font = Content.Load<SpriteFont>("Segoe UI Mono");
         }
@@ -183,7 +196,7 @@ namespace SampleGame
 
             world = Matrix.CreateFromYawPitchRoll(rot.Y, rot.X, rot.Z) * Matrix.CreateTranslation(pos);
 
-            models[selectedModel].Draw(world, view, projection);
+            //models[selectedModel].Draw(world, view, projection);
 
             if (showHints)
             {
@@ -194,6 +207,19 @@ namespace SampleGame
 
                 spriteBatch.End();
             }
+
+            GraphicsDevice.RasterizerState = new RasterizerState()
+            {
+                CullMode = CullMode.None,
+                ScissorTestEnable = true
+            };
+
+            GraphicsDevice.DepthStencilState = new DepthStencilState()
+            {
+                DepthBufferEnable = true
+            };
+
+            stdModel.Draw(world, view, projection);
 
             base.Draw(gameTime);
         }

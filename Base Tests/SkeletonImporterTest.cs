@@ -9,74 +9,41 @@ namespace Base_Tests
     
     
     /// <summary>
-    ///This is a test class for SkeletonImporterTest and is intended
-    ///to contain all SkeletonImporterTest Unit Tests
+    /// Tests the functionality of the skeleton importer, whose task it is to 
+    /// find all joint definitions referenced by the "skeleton" tag in the
+    /// COLLADA file.
     ///</summary>
-    [TestClass()]
-    public class SkeletonImporterTest
+    [TestClass]
+    public class SkeletonImporterTest : TestBase
     {
+        static ColladaModel apcModel = new ColladaModel();
 
-
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
+        [ClassInitialize]
+        public static void Init(TestContext context)
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
+            // Loads COLLADA document for testing
+            XmlDocument apcDocument = TestBase.LoadDocument("APC_animation.DAE");
+
+            SkeletonImporter importer = new SkeletonImporter();
+            importer.Import(apcDocument.DocumentElement, apcModel);
         }
 
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
-
         /// <summary>
-        ///A test for Import
+        /// Checks whether joints have been imported correctly
         ///</summary>
-        [TestMethod()]
-        public void ImportTest()
+        [TestMethod]
+        public void SkeletonImportTest()
         {
-            SkeletonImporter target = new SkeletonImporter(); // TODO: Initialize to an appropriate value
-            XmlNode xmlRoot = null; // TODO: Initialize to an appropriate value
-            ColladaModel model = null; // TODO: Initialize to an appropriate value
-            target.Import(xmlRoot, model);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            // 2 actual joints and the additional root joint
+            Assert.AreEqual(3, apcModel.Joints.Count, "Number of Joints");
+
+            // Joint names
+            Assert.AreEqual("bone_turret", apcModel.Joints[0].Name, "Joint Name");
+            Assert.AreEqual("bone_gun", apcModel.Joints[1].Name, "Joint Name");
+
+            // Joint connections
+            Assert.AreEqual(apcModel.Joints[0], apcModel.Joints[2].Children[0], "Root Joint connected");
+            Assert.AreEqual(apcModel.Joints[1], apcModel.Joints[0].Children[0], "First Joint connected");
         }
     }
 }

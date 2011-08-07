@@ -18,7 +18,7 @@ namespace Omi.Xna.Collada.Importer
     /// <summary>
     /// This class imports COLLADA (.dae) models for use with the standard XNA Model class.
     /// </summary>
-    [ContentImporter(".dae", CacheImportedData=true, DisplayName = "COLLADA Standard Importer", DefaultProcessor = "ModelProcessor")]
+    //[ContentImporter(".dae", CacheImportedData=true, DisplayName = "COLLADA Standard Importer", DefaultProcessor = "ModelProcessor")]
     public class ColladaStandardImporter : ContentImporter<NodeContent>
     {
         /// <summary>

@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Xml;
 using ColladaXna.Base;
+using ColladaXna.Base.Lighting;
+using Microsoft.Xna.Framework;
 
 namespace Base_Tests
 {
@@ -15,68 +17,31 @@ namespace Base_Tests
     [TestClass()]
     public class LightImporterTest
     {
+        static ColladaModel apcModel = new ColladaModel();
 
-
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
+        [ClassInitialize]
+        public static void Init(TestContext context)
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
+            // Loads COLLADA document for testing
+            XmlDocument apcDocument = TestBase.LoadDocument("APC_animation.DAE");
+
+            LightImporter importer = new LightImporter();
+            importer.Import(apcDocument.DocumentElement, apcModel);
         }
 
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
-
         /// <summary>
-        ///A test for Import
+        /// Checks whether lights have been imported
         ///</summary>
-        [TestMethod()]
-        public void ImportTest()
+        [TestMethod]
+        public void LightImportTest()
         {
-            LightImporter target = new LightImporter(); // TODO: Initialize to an appropriate value
-            XmlNode xmlRoot = null; // TODO: Initialize to an appropriate value
-            ColladaModel model = null; // TODO: Initialize to an appropriate value
-            target.Import(xmlRoot, model);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            Assert.AreEqual(1, apcModel.Lights.Count, "Number of Lights");
+            Assert.AreEqual("AmbientLight", apcModel.Lights[0].Name);
+
+            AmbientLight ambient = apcModel.Lights[0] as AmbientLight;
+            Assert.IsNotNull(ambient);
+
+            Assert.AreEqual(new Color(0, 0, 0), ambient.Color);
         }
     }
 }

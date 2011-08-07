@@ -69,7 +69,7 @@ namespace ColladaXna.Base.Geometry
 
         public void GetValue(int atIndex, ref float[] dest, int destIndex)
         {
-            Array.Copy(Source.Data, Indices[atIndex], dest, destIndex, Source.Stride);
+            Array.Copy(Source.Data, Indices[atIndex] * Source.Stride, dest, destIndex, Source.Stride);
         }        
 
         public void GetValue(int atIndex, out Vector3 result)

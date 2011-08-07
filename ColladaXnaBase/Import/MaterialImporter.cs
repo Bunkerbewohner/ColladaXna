@@ -55,6 +55,7 @@ namespace ColladaXna.Base.Import
             // Search normal map and add it, if it exists (that's not part of the common profile)
             SearchNormalMap(xmlEffect, ref material);
 
+            // Add default diffuse component to avoid complete Darkness 
             if (!material.Properties.OfType<DiffuseColor>().Any() &&
                 !material.Properties.OfType<DiffuseMap>().Any())
             {
@@ -159,7 +160,6 @@ namespace ColladaXna.Base.Import
         /// - constant
         /// - blinn / phong
         /// - lambert
-        /// However, all of these eventuall are converted to phong.
         /// </summary>
         /// <param name="xmlEffect">xml effect node</param>
         /// <param name="material">Material instance to store data in</param>
@@ -210,7 +210,7 @@ namespace ColladaXna.Base.Import
             float? shininess = ReadFloat(node.SelectSingleNode("shininess"));
             if (shininess != null) material.Properties.Add(new SpecularPower((float)shininess));
 
-            // Reflective / Environment Map (Reflective Color is not supported)
+            // Reflective / Environment Map (Reflective Color is not supported right now)
             Object reflective = ReadColorOrTexture(xmlEffect, node.SelectSingleNode("reflective"));
             if (reflective != null && reflective is TextureReference)
             {

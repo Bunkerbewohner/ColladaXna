@@ -84,6 +84,10 @@
       <Project>{5E909955-A672-4E31-9671-E05457351A53}</Project>
       <Name>ColladaImporter</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\ColladaXnaImporter\ColladaXnaImporter.csproj">
+      <Project>{625E5D7F-86F6-4961-89D0-3835BF261ACC}</Project>
+      <Name>ColladaXnaImporter</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Maya\boy_10.tga">
@@ -265,6 +269,14 @@
       <Name>Toomer__specular</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="3ds Max\APC\APC_std.dae">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>APC_std</Name>
+      <Importer>ColladaStdModelImporter</Importer>
+      <Processor>ModelProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
