@@ -72,7 +72,7 @@ namespace SampleGame
         /// </summary>
         protected override void LoadContent()
         {
-            stdModel = Content.Load<Model>("3ds Max/APC/APC_std");
+            stdModel = Content.Load<Model>("3ds Max/Marcus/marcus_std");
             foreach (Microsoft.Xna.Framework.Graphics.ModelMesh mesh in stdModel.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
