@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="a31db292-3337-48f6-886a-4e9f71625ae7" name="Mathias@JUNKTOWN 2011-08-07 19:57:05" runUser="Junktown\Mathias" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestSettings name="Local" id="a9b277e3-4af9-4f2f-84dc-a3e62857f02a">
+    <Description>These are default test settings for a local test run.</Description>
+    <Deployment enabled="false" runDeploymentRoot="Mathias_JUNKTOWN 2011-08-07 19_57_05">
+      <DeploymentItem filename="D:\Projekte\XNA\ColladaXna\ColladaXnaBase\bin\x86\Debug\ColladaXnaBase.dll" />
+    </Deployment>
+    <Execution>
+      <TestTypeSpecific />
+      <AgentRule name="Execution Agents">
+      </AgentRule>
+    </Execution>
+  </TestSettings>
+  <Times creation="2011-08-07T19:57:05.6341680+02:00" queuing="2011-08-07T19:57:05.7891769+02:00" start="2011-08-07T19:57:05.8231788+02:00" finish="2011-08-07T19:57:06.2712045+02:00" />
+  <ResultSummary outcome="Completed">
+    <Counters total="1" executed="1" passed="1" error="0" failed="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+  </ResultSummary>
+  <TestDefinitions>
+    <UnitTest name="ImportMeshesTest" storage="d:\projekte\xna\colladaxna\base tests\bin\debug\base tests.dll" id="e107533e-31bd-5142-7a78-d035f5d7a30d">
+      <Execution id="febb4c78-95d6-4b1c-8140-c0eb20a58505" />
+      <TestMethod codeBase="D:/Projekte/XNA/ColladaXna/Base Tests/bin/Debug/Base Tests.DLL" adapterTypeName="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestAdapter, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.Adapter, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" className="Base_Tests.GeometryImporterTest, Base Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="ImportMeshesTest" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <TestEntries>
+    <TestEntry testId="e107533e-31bd-5142-7a78-d035f5d7a30d" executionId="febb4c78-95d6-4b1c-8140-c0eb20a58505" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <Results>
+    <UnitTestResult executionId="febb4c78-95d6-4b1c-8140-c0eb20a58505" testId="e107533e-31bd-5142-7a78-d035f5d7a30d" testName="ImportMeshesTest" computerName="JUNKTOWN" duration="00:00:00.0147414" startTime="2011-08-07T19:57:05.8321793+02:00" endTime="2011-08-07T19:57:06.2412027+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="febb4c78-95d6-4b1c-8140-c0eb20a58505">
+    </UnitTestResult>
+  </Results>
+</TestRun>

@@ -103,7 +103,7 @@ namespace Omi.Xna.Collada.Importer.Import
             // TODO: Implement Animation Clips (missing example so far)
             
             // Try to merge all animations (must be extended to consider animation clips)
-            // NOTE: Didn't work for Maya animations, something's still of with them
+            // NOTE: Didn't work for Maya animations, something's still off with them
             if (animations.Count > 1 && false)
             {
                 try

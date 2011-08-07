@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="cef5c433-925e-4c21-a43e-12297f24424f" name="Mathias@JUNKTOWN 2011-08-07 20:10:33" runUser="Junktown\Mathias" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestSettings name="Local" id="a9b277e3-4af9-4f2f-84dc-a3e62857f02a">
+    <Description>These are default test settings for a local test run.</Description>
+    <Deployment enabled="false" runDeploymentRoot="Mathias_JUNKTOWN 2011-08-07 20_10_33">
+      <DeploymentItem filename="D:\Projekte\XNA\ColladaXna\ColladaXnaBase\bin\x86\Debug\ColladaXnaBase.dll" />
+    </Deployment>
+    <Execution>
+      <TestTypeSpecific />
+      <AgentRule name="Execution Agents">
+      </AgentRule>
+    </Execution>
+  </TestSettings>
+  <Times creation="2011-08-07T20:10:33.9794027+02:00" queuing="2011-08-07T20:10:34.0044042+02:00" start="2011-08-07T20:10:34.0114046+02:00" finish="2011-08-07T20:10:34.3104217+02:00" />
+  <ResultSummary outcome="Completed">
+    <Counters total="3" executed="3" passed="3" error="0" failed="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+  </ResultSummary>
+  <TestDefinitions>
+    <UnitTest name="StaticMeshImportTest" storage="d:\projekte\xna\colladaxna\base tests\bin\debug\base tests.dll" id="f8585df7-3d46-f0ce-adf7-920a375a62f2">
+      <Execution id="58302519-6106-4982-9990-0e58e6acbfd1" />
+      <TestMethod codeBase="D:/Projekte/XNA/ColladaXna/Base Tests/bin/Debug/Base Tests.DLL" adapterTypeName="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestAdapter, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.Adapter, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" className="Base_Tests.GeometryImporterTest, Base Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="StaticMeshImportTest" />
+    </UnitTest>
+    <UnitTest name="ImportMeshesTest" storage="d:\projekte\xna\colladaxna\base tests\bin\debug\base tests.dll" id="e107533e-31bd-5142-7a78-d035f5d7a30d">
+      <Execution id="f509eae3-4e82-43cd-a7d0-2f6f1fea08a9" />
+      <TestMethod codeBase="D:/Projekte/XNA/ColladaXna/Base Tests/bin/Debug/Base Tests.DLL" adapterTypeName="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestAdapter, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.Adapter, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" className="Base_Tests.GeometryImporterTest, Base Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="ImportMeshesTest" />
+    </UnitTest>
+    <UnitTest name="SkinnedMeshImportTest" storage="d:\projekte\xna\colladaxna\base tests\bin\debug\base tests.dll" id="1246d3ed-379f-89af-943c-64c4bc90f50a">
+      <Execution id="3ee019aa-de58-4817-8fda-e5ae6709fd7e" />
+      <TestMethod codeBase="D:/Projekte/XNA/ColladaXna/Base Tests/bin/Debug/Base Tests.DLL" adapterTypeName="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestAdapter, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.Adapter, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" className="Base_Tests.GeometryImporterTest, Base Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="SkinnedMeshImportTest" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <TestEntries>
+    <TestEntry testId="1246d3ed-379f-89af-943c-64c4bc90f50a" executionId="3ee019aa-de58-4817-8fda-e5ae6709fd7e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e107533e-31bd-5142-7a78-d035f5d7a30d" executionId="f509eae3-4e82-43cd-a7d0-2f6f1fea08a9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f8585df7-3d46-f0ce-adf7-920a375a62f2" executionId="58302519-6106-4982-9990-0e58e6acbfd1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <Results>
+    <UnitTestResult executionId="3ee019aa-de58-4817-8fda-e5ae6709fd7e" testId="1246d3ed-379f-89af-943c-64c4bc90f50a" testName="SkinnedMeshImportTest" computerName="JUNKTOWN" duration="00:00:00.0129185" startTime="2011-08-07T20:10:34.0134047+02:00" endTime="2011-08-07T20:10:34.2814200+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3ee019aa-de58-4817-8fda-e5ae6709fd7e">
+    </UnitTestResult>
+    <UnitTestResult executionId="f509eae3-4e82-43cd-a7d0-2f6f1fea08a9" testId="e107533e-31bd-5142-7a78-d035f5d7a30d" testName="ImportMeshesTest" computerName="JUNKTOWN" duration="00:00:00.0005293" startTime="2011-08-07T20:10:34.2834201+02:00" endTime="2011-08-07T20:10:34.2884204+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f509eae3-4e82-43cd-a7d0-2f6f1fea08a9">
+    </UnitTestResult>
+    <UnitTestResult executionId="58302519-6106-4982-9990-0e58e6acbfd1" testId="f8585df7-3d46-f0ce-adf7-920a375a62f2" testName="StaticMeshImportTest" computerName="JUNKTOWN" duration="00:00:00.0007228" startTime="2011-08-07T20:10:34.2894205+02:00" endTime="2011-08-07T20:10:34.2954208+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="58302519-6106-4982-9990-0e58e6acbfd1">
+    </UnitTestResult>
+  </Results>
+</TestRun>

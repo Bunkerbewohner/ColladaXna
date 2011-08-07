@@ -154,6 +154,8 @@ namespace ColladaXna.Base.Import
                 foreach (String semantic in semantics)
                 {
                     XmlNode input = xmlPart.SelectSingleNode(".//input[@semantic='" + semantic + "']");
+                    if (input == null) continue; // no such vertex channel defined
+
                     int offset;
                     String sourceId;
 
@@ -163,8 +165,20 @@ namespace ColladaXna.Base.Import
                         throw new Exception("No offset attribute of input with '" + semantic + "' semantic found");
 
                     sourceId = sourceId.Replace("#", "");    
-                    VertexSource source = sources.Where(s => s.GlobalID.Equals(sourceId)).FirstOrDefault();
-                    if (source == null) throw new Exception("Source '" + sourceId + "' not found");
+                    VertexSource source = sources.Where(s => s.GlobalID.Equals(sourceId)).FirstOrDefault();   
+                    if (source == null)
+                    {
+                        if (semantic.Equals("VERTEX"))
+                        {
+                            sourceId = xmlGeometryNode.SelectSingleNode(".//input[@semantic='POSITION']/@source").InnerText.Substring(1);
+                            source = sources.Where(s => s.GlobalID.Equals(sourceId)).FirstOrDefault();
+                        }
+                        
+                        if (source == null)
+                        {
+                            throw new Exception("Source '" + sourceId + "' not found");
+                        }
+                    }                    
 
                     VertexElement desc = new VertexElement();
                     desc.Offset = offset;

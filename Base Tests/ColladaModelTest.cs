@@ -71,7 +71,7 @@ namespace Base_Tests
         [TestMethod()]
         public void ColladaModelConstructorTest()
         {
-            string filename = "../../../Base Tests/TestData/APC_animation.DAE";
+            string filename = TestDataLoader.GetTestFilePath("APC_animation.DAE");
             Assert.IsTrue(File.Exists(filename), (new FileInfo(filename).FullName) + " does not exist");
             
             ColladaModel target = new ColladaModel(filename);            

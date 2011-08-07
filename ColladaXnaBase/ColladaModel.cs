@@ -72,6 +72,11 @@ namespace ColladaXna.Base
             }
         }
 
+        public ColladaModel()
+        {
+
+        }
+
         public ColladaModel(String filename)
         {
             SourceFilename = filename;
