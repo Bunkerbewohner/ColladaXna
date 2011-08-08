@@ -329,7 +329,7 @@ namespace ColladaXna.Base.Import
                 Source source = new Source(node, true);
                 VertexSource v = new VertexSource();
                 v.Stride = source.Stride;
-                v.Data = (float[])source.Data;
+                v.Data = (float[])source.Data;                
 
                 node.TryGetAttribute("id", out v.GlobalID);
                 vertexSources.Add(v);

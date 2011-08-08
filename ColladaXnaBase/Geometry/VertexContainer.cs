@@ -118,7 +118,16 @@ namespace ColladaXna.Base.Geometry
                     foreach (VertexChannel channel in inputChannels)
                     {
                         float[] elementData = new float[channel.Source.Stride];
-                        channel.GetValue(i, ref elementData, 0);                        
+                        channel.GetValue(i, ref elementData, 0);
+
+                        // origin of texture coordinates in XNA is top left, while 
+                        // in COLLADA it is bottom left. Therefore they need to be
+                        // converted here
+                        if (channel.Description.VertexElementUsage == VertexElementUsage.TextureCoordinate)
+                        {
+                            elementData[1] = 1 - elementData[1];
+                        }
+
                         vbuffer.AddRange(elementData);
                     }                                                                                
 
@@ -168,8 +177,11 @@ namespace ColladaXna.Base.Geometry
                 // Every channel uses the same source now (global vertex buffer)
                 channel.Source.Data = _data;
 
+                // Every channel also uses the same indices
+                channel.Indices = _indices;
+
                 // The stride of one entry containing all elements for one vertex
-                channel.Source.Stride = _vertexSize;
+                channel.Source.Stride = _vertexSize;                
             }
         }
 

@@ -93,46 +93,16 @@ namespace ColladaXnaImporter
                     meshBuilder = MeshBuilder.StartMesh(mesh.Name);
                     meshBuilder.SwapWindingOrder = false;
                     meshBuilder.MergeDuplicatePositions = false;                    
-                    meshBuilder.SetMaterial(materials[part.MaterialName]);
-
-                    // Vertex channels other than position
-                    List<XnaVertexChannel> channels = new List<XnaVertexChannel>();
-                    foreach (CVertexChannel cvChannel in part.Vertices.VertexChannels)                    
-                        if (cvChannel.Description.VertexElementUsage != VertexElementUsage.Position)
-                            channels.Add(new XnaVertexChannel(meshBuilder, cvChannel));                    
-
-                    bool normals = part.Vertices.VertexChannels.Any(c =>
-                        c.Description.VertexElementUsage == VertexElementUsage.Normal);
-
-                    bool texcoords = part.Vertices.VertexChannels.Any(c =>
-                        c.Description.VertexElementUsage == VertexElementUsage.TextureCoordinate);                    
-
-                    int normalIndex = !normals ? 0 :
-                        meshBuilder.CreateVertexChannel<Vector3>(VertexChannelNames.Normal());
-
-                    int texCoordIndex = !texcoords ? 0 :
-                        meshBuilder.CreateVertexChannel<Vector2>(VertexChannelNames.TextureCoordinate(0));
+                    meshBuilder.SetMaterial(materials[part.MaterialName]);                  
 
                     // Positions
                     CVertexChannel posChannel = part.Vertices.VertexChannels.Where(c =>
                             c.Description.VertexElementUsage == VertexElementUsage.Position).
                             FirstOrDefault();
 
-                    // Normals?
-                    CVertexChannel normalChannel = part.Vertices.VertexChannels.Where(c =>
-                            c.Description.VertexElementUsage == VertexElementUsage.Normal).
-                            FirstOrDefault();
-
-                    CVertexChannel texCoordChannel = part.Vertices.VertexChannels.Where(c =>
-                            c.Description.VertexElementUsage == VertexElementUsage.TextureCoordinate).
-                            FirstOrDefault();
-
                     VertexContainer container = part.Vertices;
                     float[] data = container.Vertices;
-
-                    int posOffset = posChannel.Source.Offset;
-                    int normalOffset = normalChannel.Source.Offset;   
-                    int texOffset = texCoordChannel.Source.Offset;
+                    int posOffset = posChannel.Source.Offset;                    
 
                     for (int i = 0; i < container.Vertices.Length; i += container.VertexSize)
                     {                        
@@ -141,29 +111,20 @@ namespace ColladaXnaImporter
                         meshBuilder.CreatePosition(pos);
                     }
 
+                    // Vertex channels other than position
+                    List<XnaVertexChannel> channels = new List<XnaVertexChannel>();
+                    foreach (CVertexChannel cvChannel in part.Vertices.VertexChannels)
+                        if (cvChannel.Description.VertexElementUsage != VertexElementUsage.Position)
+                            channels.Add(new XnaVertexChannel(meshBuilder, cvChannel));
+
                     // Triangles
                     for (int i = 0; i < part.Indices.Length; i += 3)
                     {
                         for (int j = i; j < i + 3; j++)
-                        {
-                            int k = part.Indices[j] * container.VertexSize;                                            
-
-                            if (normals)
-                            {
-                                Vector3 normal = new Vector3(data[k + normalOffset + 0],
-                                    data[k + normalOffset + 1], data[k + normalOffset + 2]);
-
-                                meshBuilder.SetVertexChannelData(normalIndex, normal);
-                            }
-
-                            if (texcoords)
-                            {
-                                // Y axis of texture coordinates in collada is inverse of that in XNA
-                                Vector2 coord = new Vector2(data[k + texOffset + 0],
-                                    1 - data[k + texOffset + 1]);
-
-                                meshBuilder.SetVertexChannelData(texCoordIndex, coord);
-                            }
+                        {                            
+                            // Set channel components (other than position)
+                            foreach (var channel in channels)                            
+                                channel.SetData(j);                            
 
                             meshBuilder.AddTriangleVertex(part.Indices[j]);            
                         }
@@ -190,9 +151,11 @@ namespace ColladaXnaImporter
             _meshBuilder = meshBuilder;
             _vertexSize = colladaVertexChannel.Source.Stride;
             _offset = colladaVertexChannel.Source.Offset;
+
+            Create();
         }
 
-        public void Create()
+        protected void Create()
         {
             var usage = _colladaVertexChannel.Description.VertexElementUsage;
             int usageIndex = _colladaVertexChannel.Description.UsageIndex;

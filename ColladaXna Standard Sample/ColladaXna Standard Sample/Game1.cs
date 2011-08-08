@@ -67,7 +67,7 @@ namespace ColladaXna_Standard_Sample
             view = Matrix.CreateLookAt(new Vector3(0, 0, -10), Vector3.Zero, Vector3.Up);
 
             pos = new Vector3(0, -40, 100);
-            rot = new Vector3(0, 0, 0);
+            rot = new Vector3(-MathHelper.PiOver2, 0, 0);
 
             base.Initialize();
         }
