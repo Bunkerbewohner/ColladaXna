@@ -172,6 +172,10 @@ namespace ColladaXnaImporter
                     _channelIndex = _meshBuilder.CreateVertexChannel<Vector3>(usageString);
                     break;
 
+                case VertexElementFormat.Vector2:
+                    _channelIndex = _meshBuilder.CreateVertexChannel<Vector2>(usageString);
+                    break;
+
                 case VertexElementFormat.Single:
                     _channelIndex = _meshBuilder.CreateVertexChannel<Single>(usageString);
                     break;
@@ -196,6 +200,10 @@ namespace ColladaXnaImporter
 
                 case VertexElementFormat.Vector3:
                     value = new Vector3(data[i], data[i + 1], data[i + 2]);
+                    break;
+
+                case VertexElementFormat.Vector2:
+                    value = new Vector2(data[i], data[i + 1]);
                     break;
 
                 case VertexElementFormat.Single:

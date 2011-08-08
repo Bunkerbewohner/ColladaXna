@@ -54,6 +54,7 @@
       <Name>apc-model</Name>
       <Importer>ColladaStdModelImporter</Importer>
       <Processor>ModelProcessor</Processor>
+      <ProcessorParameters_RotationZ>-45</ProcessorParameters_RotationZ>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +102,7 @@
       <Name>marcus</Name>
       <Importer>ColladaStdModelImporter</Importer>
       <Processor>ModelProcessor</Processor>
+      <ProcessorParameters_RotationZ>135</ProcessorParameters_RotationZ>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +114,31 @@
       <Project>{625E5D7F-86F6-4961-89D0-3835BF261ACC}</Project>
       <Name>ColladaXnaImporter</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Spore\Bulldogtopus.dae">
+      <Name>Bulldogtopus</Name>
+      <Importer>ColladaStdModelImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+      <ProcessorParameters_Scale>30</ProcessorParameters_Scale>
+      <ProcessorParameters_RotationZ>135</ProcessorParameters_RotationZ>
+    </Compile>
+    <Compile Include="Spore\Bulldogtopus__diffuse.tga">
+      <Name>Bulldogtopus__diffuse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Spore\Bulldogtopus__normal.tga">
+      <Name>Bulldogtopus__normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Spore\Bulldogtopus__specular.tga">
+      <Name>Bulldogtopus__specular</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 

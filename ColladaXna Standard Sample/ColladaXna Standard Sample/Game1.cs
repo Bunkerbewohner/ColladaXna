@@ -34,17 +34,17 @@ namespace ColladaXna_Standard_Sample
         List<Model> models = new List<Model>();
         int selectedModel = 0;
 
-        string[] modelPaths = { "APC/apc-model", "Marcus/marcus"
+        string[] modelPaths = { "APC/apc-model", "Marcus/marcus", "Spore/Bulldogtopus"
                  };   
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-
+            
             graphics.PreferMultiSampling = true;
-            graphics.PreferredBackBufferWidth = 1920;
-            graphics.PreferredBackBufferHeight = 1080;
+            graphics.PreferredBackBufferWidth = 1600;
+            graphics.PreferredBackBufferHeight = 900;
             //graphics.IsFullScreen = true;
         }
 
@@ -173,7 +173,7 @@ namespace ColladaXna_Standard_Sample
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;

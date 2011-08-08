@@ -228,19 +228,26 @@ namespace ColladaXna.Base.Geometry
                         new Color(oldData[j + 0], oldData[j + 1], oldData[j + 2]) :
                         new Color(oldData[j + 0], oldData[j + 1], oldData[j + 2], oldData[j + 3]);
 
-                    // Transform the 4 color bytes to a float
-                    // The resulting float might not be a valid float number; but only the bytes
-                    // are important for usage later on the graphics card
-                    byte[] bytes = BitConverter.GetBytes(((Color)color).PackedValue);
-                    float colorFloat = BitConverter.ToSingle(bytes, 0);
-
-                    newSource.Data[i] = colorFloat;
+                    newSource.Data[i] = ConvertColorToSingle(color);
                 }
 
                 // Update description and source of channel
                 channel.Description = newDesc;
                 channel.Source = newSource;
             }
+        }
+
+        /// <summary>
+        /// Transforms the 4 color bytes to a single float.
+        /// The resulting float might not be a valid float number; but only the bytes
+        /// are important for usage later on the graphics card
+        /// </summary>
+        /// <param name="color">Any color</param>
+        /// <returns>The four color bytes as one float</returns>
+        Single ConvertColorToSingle(Color color)
+        {            
+            byte[] bytes = BitConverter.GetBytes(((Color)color).PackedValue);
+            return BitConverter.ToSingle(bytes, 0);             
         }
 
         //=====================================================================
