@@ -138,9 +138,7 @@ namespace ColladaXna.Base.Geometry
             foreach (VertexChannel inputChannel in inputChannels)
             {
                 VertexSource newSource = new VertexSource()
-                {
-                    Data = _data, // now all sources refer to one single vertex buffer
-                    Stride = inputChannel.Source.Stride, // the stride remains the same
+                {                                        
                     Offset = offset // the element-offset within the vertex buffer
                 };
 
@@ -150,7 +148,7 @@ namespace ColladaXna.Base.Geometry
                 VertexChannel newChannel = new VertexChannel(newSource, desc);
                 _vertexChannels.Add(newChannel);
 
-                offset += newSource.Stride;
+                offset += inputChannel.Source.Stride;
             }
 
             // Swap winding order
@@ -163,6 +161,16 @@ namespace ColladaXna.Base.Geometry
 
             _data = vbuffer.ToArray();
             _indices = indexList.ToArray();            
+
+            // Update Source Data reference off all vertex channels 
+            foreach (VertexChannel channel in _vertexChannels)
+            {
+                // Every channel uses the same source now (global vertex buffer)
+                channel.Source.Data = _data;
+
+                // The stride of one entry containing all elements for one vertex
+                channel.Source.Stride = _vertexSize;
+            }
         }
 
         /// <summary>

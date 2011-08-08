@@ -9,12 +9,11 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using ColladaXna.Base;
 using System.IO;
 using ColladaXna.Base.Geometry;
+using ColladaXna.Base.Materials;
 
 namespace ColladaXnaImporter
 {
-    using CVertexChannel = ColladaXna.Base.Geometry.VertexChannel;
-    using ColladaXna.Base.Materials;
-    using System.Diagnostics;
+    using CVertexChannel = ColladaXna.Base.Geometry.VertexChannel;        
 
     /// <summary>
     /// This class imports a COLLADA ".dae" file into the XNA default content model for models.
@@ -25,14 +24,10 @@ namespace ColladaXnaImporter
     public class ColladaStdModelImporter : ContentImporter<NodeContent>
     {
         ColladaModel collada;
-
         ContentImporterContext importerContext;
-
         NodeContent rootNode;
-
         MeshBuilder meshBuilder;
-
-        Dictionary<String, MaterialContent> materials;
+        Dictionary<String, MaterialContent> materials;        
 
         public override NodeContent Import(string filename, ContentImporterContext context)
         {
@@ -98,13 +93,19 @@ namespace ColladaXnaImporter
                     meshBuilder = MeshBuilder.StartMesh(mesh.Name);
                     meshBuilder.SwapWindingOrder = false;
                     meshBuilder.MergeDuplicatePositions = false;                    
-                    meshBuilder.SetMaterial(materials[part.MaterialName]);                    
+                    meshBuilder.SetMaterial(materials[part.MaterialName]);
+
+                    // Vertex channels other than position
+                    List<XnaVertexChannel> channels = new List<XnaVertexChannel>();
+                    foreach (CVertexChannel cvChannel in part.Vertices.VertexChannels)                    
+                        if (cvChannel.Description.VertexElementUsage != VertexElementUsage.Position)
+                            channels.Add(new XnaVertexChannel(meshBuilder, cvChannel));                    
 
                     bool normals = part.Vertices.VertexChannels.Any(c =>
                         c.Description.VertexElementUsage == VertexElementUsage.Normal);
 
                     bool texcoords = part.Vertices.VertexChannels.Any(c =>
-                        c.Description.VertexElementUsage == VertexElementUsage.TextureCoordinate);
+                        c.Description.VertexElementUsage == VertexElementUsage.TextureCoordinate);                    
 
                     int normalIndex = !normals ? 0 :
                         meshBuilder.CreateVertexChannel<Vector3>(VertexChannelNames.Normal());
@@ -172,6 +173,77 @@ namespace ColladaXnaImporter
                     rootNode.Children.Add(meshContent);
                 }
             }            
+        }
+    }
+
+    class XnaVertexChannel
+    {
+        private MeshBuilder _meshBuilder;
+        private CVertexChannel _colladaVertexChannel;
+        private int _channelIndex;
+        private int _vertexSize;
+        private int _offset;        
+
+        public XnaVertexChannel(MeshBuilder meshBuilder, CVertexChannel colladaVertexChannel)
+        {
+            _colladaVertexChannel = colladaVertexChannel;
+            _meshBuilder = meshBuilder;
+            _vertexSize = colladaVertexChannel.Source.Stride;
+            _offset = colladaVertexChannel.Source.Offset;
+        }
+
+        public void Create()
+        {
+            var usage = _colladaVertexChannel.Description.VertexElementUsage;
+            int usageIndex = _colladaVertexChannel.Description.UsageIndex;
+
+            String usageString = VertexChannelNames.EncodeName(usage, usageIndex);
+
+            switch (_colladaVertexChannel.Description.VertexElementFormat)
+            {
+                case VertexElementFormat.Vector4:
+                    _channelIndex = _meshBuilder.CreateVertexChannel<Vector4>(usageString);
+                    break;
+
+                case VertexElementFormat.Vector3:
+                    _channelIndex = _meshBuilder.CreateVertexChannel<Vector3>(usageString);
+                    break;
+
+                case VertexElementFormat.Single:
+                    _channelIndex = _meshBuilder.CreateVertexChannel<Single>(usageString);
+                    break;
+
+                default:
+                    throw new Exception("Unexpected vertex element format");
+            }
+        }
+
+        public void SetData(int index)
+        {
+            int i = _colladaVertexChannel.Indices[index] * _vertexSize + _offset;
+            float[] data = _colladaVertexChannel.Source.Data;
+
+            object value;
+
+            switch (_colladaVertexChannel.Description.VertexElementFormat)
+            {
+                case VertexElementFormat.Vector4:
+                    value = new Vector4(data[i], data[i + 1], data[i + 2], data[i + 3]);
+                    break;
+
+                case VertexElementFormat.Vector3:
+                    value = new Vector3(data[i], data[i + 1], data[i + 2]);
+                    break;
+
+                case VertexElementFormat.Single:
+                    value = data[i];
+                    break;
+
+                default:
+                    throw new Exception("Unexpected vertex element format");
+            }
+
+            _meshBuilder.SetVertexChannelData(_channelIndex, value);            
         }
     }
 }

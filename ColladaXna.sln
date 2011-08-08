@@ -24,6 +24,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColladaXnaImporter", "Colla
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelineDebug", "PipelineDebug\PipelineDebug.csproj", "{E6D0DE18-F105-4E21-9963-DF183FFD8E2A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColladaXna Standard Sample", "ColladaXna Standard Sample\ColladaXna Standard Sample\ColladaXna Standard Sample.csproj", "{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "ColladaXna Standard SampleContent", "ColladaXna Standard Sample\ColladaXna Standard SampleContent\ColladaXna Standard SampleContent.contentproj", "{0DAB2428-B954-4E00-925F-A07953AA3055}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 6
@@ -136,6 +140,22 @@ Global
 		{E6D0DE18-F105-4E21-9963-DF183FFD8E2A}.Release|Mixed Platforms.Build.0 = Release|x86
 		{E6D0DE18-F105-4E21-9963-DF183FFD8E2A}.Release|x86.ActiveCfg = Release|x86
 		{E6D0DE18-F105-4E21-9963-DF183FFD8E2A}.Release|x86.Build.0 = Release|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Debug|x86.ActiveCfg = Debug|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Debug|x86.Build.0 = Debug|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Release|Any CPU.ActiveCfg = Release|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Release|Mixed Platforms.Build.0 = Release|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Release|x86.ActiveCfg = Release|x86
+		{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}.Release|x86.Build.0 = Release|x86
+		{0DAB2428-B954-4E00-925F-A07953AA3055}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{0DAB2428-B954-4E00-925F-A07953AA3055}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{0DAB2428-B954-4E00-925F-A07953AA3055}.Debug|x86.ActiveCfg = Debug|x86
+		{0DAB2428-B954-4E00-925F-A07953AA3055}.Release|Any CPU.ActiveCfg = Release|x86
+		{0DAB2428-B954-4E00-925F-A07953AA3055}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{0DAB2428-B954-4E00-925F-A07953AA3055}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
