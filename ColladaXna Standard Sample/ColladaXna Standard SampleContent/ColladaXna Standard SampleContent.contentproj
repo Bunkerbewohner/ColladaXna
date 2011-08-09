@@ -128,6 +128,7 @@
       <Name>Bulldogtopus__diffuse</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
     <Compile Include="Spore\Bulldogtopus__normal.tga">
       <Name>Bulldogtopus__normal</Name>

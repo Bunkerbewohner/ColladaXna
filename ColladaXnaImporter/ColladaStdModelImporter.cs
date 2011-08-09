@@ -20,7 +20,7 @@ namespace ColladaXnaImporter
     /// As a result models imported with this class can be processed and loaded with all the
     /// default content processors just like FBX models.
     /// </summary>
-    [ContentImporter(".dae", CacheImportedData = false, DisplayName="COLLADA Standard Importer", DefaultProcessor="ModelProcessor")]
+    [ContentImporter(".dae", CacheImportedData = true, DisplayName="COLLADA Standard Importer", DefaultProcessor="ModelProcessor")]
     public class ColladaStdModelImporter : ContentImporter<NodeContent>
     {
         ColladaModel collada;
@@ -41,7 +41,7 @@ namespace ColladaXnaImporter
             
             rootNode = new NodeContent();
             rootNode.Name = Path.GetFileNameWithoutExtension(filename);
-            rootNode.Identity = new ContentIdentity(filename);
+            rootNode.Identity = new ContentIdentity(filename);            
 
             CreateMaterials();
             CreateMeshes();
@@ -78,12 +78,12 @@ namespace ColladaXnaImporter
                 if (alpha != null) material.Alpha = alpha.Value;
 
                 var emissive = collada.Materials[i].Properties.OfType<EmissiveColor>().FirstOrDefault();
-                if (emissive != null) material.EmissiveColor = emissive.Color.ToVector3();                
+                if (emissive != null) material.EmissiveColor = emissive.Color.ToVector3();                                       
 
                 materials.Add(material.Name, material);
-            }
+            }            
         }
- 
+            
         void CreateMeshes()
         {
             foreach (Mesh mesh in collada.Meshes)

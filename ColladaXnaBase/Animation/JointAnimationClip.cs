@@ -7,7 +7,7 @@ namespace ColladaXna.Base.Animation
 {
     /// <summary>
     /// List of animations that can be played in order.
-    /// Also blending between two consecutive animations is supported.
+    /// TODO: Still has to be imported by the AnimationImporter
     /// </summary>
     public class JointAnimationClip
     {
