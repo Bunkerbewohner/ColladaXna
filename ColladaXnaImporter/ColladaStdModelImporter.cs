@@ -121,27 +121,21 @@ namespace ColladaXnaImporter
                 if (alpha != null) material.Alpha = alpha.Value;
 
                 var emissive = collada.Materials[i].Properties.OfType<EmissiveColor>().FirstOrDefault();
-                if (emissive != null) material.EmissiveColor = emissive.Color.ToVector3();       
-                
-                // Normal and Specular Maps as file paths (Non standard!)
-                var normalMap = collada.Materials[i].Properties.OfType<NormalMap>().FirstOrDefault();
-                if (normalMap != null)
+                if (emissive != null) material.EmissiveColor = emissive.Color.ToVector3();
+
+                // Add other texture maps than Diffuse Map (non-standard) such as Normal Maps
+                // and Specular Maps
+                var textureMaps = from property in collada.Materials[i].Properties
+                                  where property is TextureProperty && !(property is DiffuseMap)
+                                  select property as TextureProperty;
+
+                foreach (var textureMap in textureMaps)
                 {
-                    String path = normalMap.Texture.Filename;
+                    String path = textureMap.Texture.Filename;
                     if (!Path.IsPathRooted(path)) path = baseDir + "/" + path;
 
-                    material.OpaqueData.Add("NormalMap", path);
-                    material.Textures.Add("NormalMap", new ExternalReference<TextureContent>(path));
-                }
-
-                var specularMap = collada.Materials[i].Properties.OfType<SpecularMap>().FirstOrDefault();
-                if (specularMap != null)
-                {
-                    String path = specularMap.Texture.Filename;
-                    if (!Path.IsPathRooted(path)) path = baseDir + "/" + path;
-
-                    material.OpaqueData.Add("SpecularMap", path);
-                    material.Textures.Add("SpecularMap", new ExternalReference<TextureContent>(path));
+                    material.OpaqueData.Add(textureMap.Name, path);
+                    material.Textures.Add(textureMap.Name, new ExternalReference<TextureContent>(path));
                 }
 
                 materials.Add(material.Name, material);
@@ -163,29 +157,7 @@ namespace ColladaXnaImporter
                     meshBuilder.SwapWindingOrder = false;
                     meshBuilder.MergeDuplicatePositions = false;                                        
                     meshBuilder.SetMaterial(material);
-                    meshBuilder.Name = mesh.Name;
-
-                    if (material.OpaqueData.ContainsKey("NormalMap") || 
-                        material.OpaqueData.ContainsKey("SpecularMap"))
-                    {
-                        // The normal mapping sample from App Hub expects "NormalMap" path
-                        // in Mesh's opaque data. So let's stick with that
-                        OpaqueDataDictionary opaqueData = new OpaqueDataDictionary();
-
-                        Object normalMapPath = null, specularMapPath = null;
-
-                        if (material.OpaqueData.TryGetValue("NormalMap", out normalMapPath))
-                        {
-                            opaqueData.Add("NormalMap", normalMapPath);
-                        }
-
-                        if (material.OpaqueData.TryGetValue("SpecularMap", out specularMapPath))
-                        {
-                            opaqueData.Add("SpecularMap", specularMapPath);
-                        }
-
-                        meshBuilder.SetOpaqueData(opaqueData);
-                    }
+                    meshBuilder.Name = mesh.Name;                    
 
                     // Positions
                     CVertexChannel posChannel = part.Vertices.VertexChannels.Where(c =>
@@ -258,6 +230,21 @@ namespace ColladaXnaImporter
                     }
 
                     MeshContent meshContent = meshBuilder.FinishMesh();
+
+                    if (material.OpaqueData.Count > 0)
+                    {
+                        // Copy opaque data from material to mesh for convenience and
+                        // to make it compatible to Normal Mapping sample from App Hub                        
+                        foreach (var pair in material.OpaqueData)
+                        {
+                            meshContent.OpaqueData.Add(pair.Key, pair.Value);
+                        }
+                    }
+                    else
+                    {
+                        importerContext.Logger.LogWarning(null, null, "No opaque data in mesh");
+                    }
+
                     rootNode.Children.Add(meshContent);
                 }
             }            
