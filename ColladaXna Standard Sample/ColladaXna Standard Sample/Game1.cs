@@ -87,7 +87,7 @@ namespace ColladaXna_Standard_Sample
                 Model model = Content.Load<Model>(path);
                 models.Add(model);
 
-                // Some default settings for the BasicEffects thtat are used
+                // Some default settings for the BasicEffects that is used
                 foreach (ModelMesh mesh in model.Meshes)
                 {
                     foreach (BasicEffect effect in mesh.Effects)

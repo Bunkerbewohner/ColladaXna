@@ -95,6 +95,7 @@ namespace ColladaXnaImporter
 
             for (int i = 0; i < collada.Materials.Count; i++)
             {
+                String baseDir = Path.GetDirectoryName(collada.SourceFilename) + "/";
                 BasicMaterialContent material = new BasicMaterialContent();                                
                 material.Name = collada.Materials[i].Name;
 
@@ -104,8 +105,10 @@ namespace ColladaXnaImporter
                 var texture = collada.Materials[i].Properties.OfType<DiffuseMap>().FirstOrDefault();
                 if (texture != null)
                 {
-                    String dir = Path.GetDirectoryName(collada.SourceFilename) + "/";
-                    material.Texture = new ExternalReference<TextureContent>(dir + texture.Texture.Filename);
+                    String path = texture.Texture.Filename;
+                    if (!Path.IsPathRooted(path)) path = baseDir + "/" + path;
+
+                    material.Texture = new ExternalReference<TextureContent>(path);
                 }
 
                 var specular = collada.Materials[i].Properties.OfType<SpecularColor>().FirstOrDefault();
@@ -118,7 +121,28 @@ namespace ColladaXnaImporter
                 if (alpha != null) material.Alpha = alpha.Value;
 
                 var emissive = collada.Materials[i].Properties.OfType<EmissiveColor>().FirstOrDefault();
-                if (emissive != null) material.EmissiveColor = emissive.Color.ToVector3();                                       
+                if (emissive != null) material.EmissiveColor = emissive.Color.ToVector3();       
+                
+                // Normal and Specular Maps as file paths (Non standard!)
+                var normalMap = collada.Materials[i].Properties.OfType<NormalMap>().FirstOrDefault();
+                if (normalMap != null)
+                {
+                    String path = normalMap.Texture.Filename;
+                    if (!Path.IsPathRooted(path)) path = baseDir + "/" + path;
+
+                    material.OpaqueData.Add("NormalMap", path);
+                    material.Textures.Add("NormalMap", new ExternalReference<TextureContent>(path));
+                }
+
+                var specularMap = collada.Materials[i].Properties.OfType<SpecularMap>().FirstOrDefault();
+                if (specularMap != null)
+                {
+                    String path = specularMap.Texture.Filename;
+                    if (!Path.IsPathRooted(path)) path = baseDir + "/" + path;
+
+                    material.OpaqueData.Add("SpecularMap", path);
+                    material.Textures.Add("SpecularMap", new ExternalReference<TextureContent>(path));
+                }
 
                 materials.Add(material.Name, material);
             }            
@@ -134,11 +158,34 @@ namespace ColladaXnaImporter
             {
                 foreach (MeshPart part in mesh.MeshParts)
                 {
+                    var material = materials[part.MaterialName];
                     meshBuilder = MeshBuilder.StartMesh(mesh.Name);
                     meshBuilder.SwapWindingOrder = false;
                     meshBuilder.MergeDuplicatePositions = false;                                        
-                    meshBuilder.SetMaterial(materials[part.MaterialName]);
+                    meshBuilder.SetMaterial(material);
                     meshBuilder.Name = mesh.Name;
+
+                    if (material.OpaqueData.ContainsKey("NormalMap") || 
+                        material.OpaqueData.ContainsKey("SpecularMap"))
+                    {
+                        // The normal mapping sample from App Hub expects "NormalMap" path
+                        // in Mesh's opaque data. So let's stick with that
+                        OpaqueDataDictionary opaqueData = new OpaqueDataDictionary();
+
+                        Object normalMapPath = null, specularMapPath = null;
+
+                        if (material.OpaqueData.TryGetValue("NormalMap", out normalMapPath))
+                        {
+                            opaqueData.Add("NormalMap", normalMapPath);
+                        }
+
+                        if (material.OpaqueData.TryGetValue("SpecularMap", out specularMapPath))
+                        {
+                            opaqueData.Add("SpecularMap", specularMapPath);
+                        }
+
+                        meshBuilder.SetOpaqueData(opaqueData);
+                    }
 
                     // Positions
                     CVertexChannel posChannel = part.Vertices.VertexChannels.Where(c =>
