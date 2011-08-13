@@ -27,7 +27,8 @@ namespace ColladaXnaImporter
         ContentImporterContext importerContext;
         NodeContent rootNode;
         MeshBuilder meshBuilder;
-        Dictionary<String, MaterialContent> materials;        
+        Dictionary<String, MaterialContent> materials;
+        int boneIndex = 0;
 
         /// <summary>
         /// Imports the COLLADA Model from the given .DAE file into the XNA Content Model.
@@ -50,7 +51,8 @@ namespace ColladaXnaImporter
             rootNode.Identity = new ContentIdentity(filename);            
 
             CreateMaterials();
-            CreateMeshes();
+            CreateMeshes();            
+            CreateBones(CreateAnimations());            
 
             return rootNode;
         }       
@@ -149,7 +151,99 @@ namespace ColladaXnaImporter
                 }
             }            
         }
-    }
+
+        List<AnimationContent> CreateAnimations()
+        {
+            var animations = new List<AnimationContent>();
+
+            for (int i = 0; i < collada.JointAnimations.Count; i++)
+            {
+                var sourceAnim = collada.JointAnimations[i];
+
+                AnimationContent animation = new AnimationContent();
+                animation.Name = sourceAnim.Name ?? String.Format("Animation{0}", i);
+                animation.Duration = TimeSpan.FromSeconds(sourceAnim.EndTime - sourceAnim.StartTime);
+
+                foreach (var sourceChannel in sourceAnim.Channels)
+                {
+                    AnimationChannel channel = new AnimationChannel();
+
+                    // Adds the different keyframes to the animation channel
+                    // NOTE: Might be better to sample the keyframes
+                    foreach (var sourceKeyframe in sourceChannel.Sampler.Keyframes)
+                    {
+                        TimeSpan time = TimeSpan.FromSeconds(sourceKeyframe.Time);
+                        Matrix transform = sourceKeyframe.Transform;
+
+                        AnimationKeyframe keyframe = new AnimationKeyframe(time, transform);
+                        channel.Add(keyframe);
+                    }
+
+                    String key = GetJointKey(sourceChannel.Target);
+                    animation.Channels.Add(key, channel);
+                }
+
+                animation.OpaqueData.Add("FPS", sourceAnim.FramesPerSecond);      
+                animations.Add(animation);
+            }
+
+            return animations;
+        }
+
+        /// <summary>
+        /// Usually Joints (or Bones) are referenced by their name. However, in COLLADA
+        /// names are optional. Instead each joint might only have an ID or SID, or nothing.
+        /// This method generates a reliable string key for each joint. 
+        /// </summary>
+        /// <param name="joint">An joint</param>
+        /// <returns>String key that assumes one of the following possible values in ascending
+        /// precedence (depending on the availability of each property): 
+        /// Name > GlobalID > ScopedID > Joint[NR]</returns>
+        String GetJointKey(Joint joint)
+        {
+            if (joint.Name != null && joint.Name.Length > 0)
+                return joint.Name;
+
+            if (joint.GlobalID != null && joint.GlobalID.Length > 0)
+                return joint.GlobalID;
+
+            if (joint.ScopedID != null && joint.ScopedID.Length > 0)
+                return joint.ScopedID;
+
+            return String.Format("Bone{0}", ++boneIndex);
+        }
+
+        void CreateBones(List<AnimationContent> animations)
+        {
+            if (collada.Joints.Count == 0) return;
+            boneIndex = 0;
+            Joint rootJoint = collada.Joints[collada.Joints.Count - 1];
+
+            // Create skeleton recursively from joints
+            BoneContent root = CreateSkeleton(rootJoint);            
+
+            // Attach animations to root bone 
+            foreach (var animation in animations)
+                root.Animations.Add(animation.Name, animation);            
+        }
+
+        BoneContent CreateSkeleton(Joint joint)
+        {
+            var bone = new BoneContent();
+            bone.Name = GetJointKey(joint);
+            bone.Transform = joint.Transform;
+
+            if (joint.Children != null && joint.Children.Count > 0)
+            {
+                foreach (var childJoint in joint.Children)
+                {
+                    bone.Children.Add(CreateSkeleton(childJoint));
+                }
+            }
+
+            return bone;
+        }
+    }    
 
     /// <summary>
     /// Helper class for creating vertex channels with MeshBuilder
