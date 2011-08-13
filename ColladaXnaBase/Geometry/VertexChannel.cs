@@ -42,6 +42,11 @@ namespace ColladaXna.Base.Geometry
             Description = description;            
         }
 
+        public Boolean Contains(VertexElementUsage usage)
+        {
+            return Description != null && Description.VertexElementUsage == usage;
+        }
+
         /// <summary>
         /// Copies indices for a given vertex data type into this vertex instruction set.
         /// The source array is assumed to be an array of consecutive indices like found

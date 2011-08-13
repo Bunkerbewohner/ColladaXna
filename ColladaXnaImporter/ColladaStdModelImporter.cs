@@ -23,12 +23,23 @@ namespace ColladaXnaImporter
     [ContentImporter(".dae", CacheImportedData = true, DisplayName="COLLADA Standard Importer", DefaultProcessor="ModelProcessor")]
     public class ColladaStdModelImporter : ContentImporter<NodeContent>
     {
+        /// <summary>
+        /// This options determines how vertex channels for skinned mesh animation are imported.
+        /// If true, a single vertex channel called "Weights" containing "BoneWeightCollection" 
+        /// elements is created. Otherwise two separate channels "BlendIndices0" and 
+        /// "BlendWeights0" are created, containing Vector4 and Vector3 elements.
+        /// </summary>
+        public const Boolean UseBoneWeightCollection = true;
+
         ColladaModel collada;
-        ContentImporterContext importerContext;
+        protected static ContentImporterContext importerContext;
         NodeContent rootNode;
         MeshBuilder meshBuilder;
         Dictionary<String, MaterialContent> materials;
-        int boneIndex = 0;
+        static int boneIndex = 0;
+
+        // Set true to exclude vertex channels for blend weights and indices
+        bool excludeBlendWeights = false;
 
         /// <summary>
         /// Imports the COLLADA Model from the given .DAE file into the XNA Content Model.
@@ -38,6 +49,7 @@ namespace ColladaXnaImporter
         /// <returns></returns>
         public override NodeContent Import(string filename, ContentImporterContext context)
         {
+            boneIndex = 0;
             importerContext = context;
 
             // Load the complete collada model which is to be converted / imported
@@ -48,11 +60,27 @@ namespace ColladaXnaImporter
             
             rootNode = new NodeContent();
             rootNode.Name = Path.GetFileNameWithoutExtension(filename);
-            rootNode.Identity = new ContentIdentity(filename);            
+            rootNode.Identity = new ContentIdentity(filename);
 
+            // The default XNA processor only supports up to 255 joints / bones
+            if (collada.Joints.Count < 255)
+            {
+                CreateBones(CreateAnimations());            
+            }
+            else
+            {
+                String helpLink = "";
+                ContentIdentity cid = rootNode.Identity;
+                String msg = String.Format("Model contains {0} bones. Maximum is 255. " + 
+                    "Skinning Data (Bones and Vertex Channels) will not be imported!",
+                    collada.Joints.Count);
+
+                importerContext.Logger.LogWarning(helpLink, cid, msg);
+                excludeBlendWeights = true;
+            }
+            
             CreateMaterials();
-            CreateMeshes();            
-            CreateBones(CreateAnimations());            
+            CreateMeshes();                        
 
             return rootNode;
         }       
@@ -108,8 +136,9 @@ namespace ColladaXnaImporter
                 {
                     meshBuilder = MeshBuilder.StartMesh(mesh.Name);
                     meshBuilder.SwapWindingOrder = false;
-                    meshBuilder.MergeDuplicatePositions = false;                    
-                    meshBuilder.SetMaterial(materials[part.MaterialName]);                  
+                    meshBuilder.MergeDuplicatePositions = false;                                        
+                    meshBuilder.SetMaterial(materials[part.MaterialName]);
+                    meshBuilder.Name = mesh.Name;
 
                     // Positions
                     CVertexChannel posChannel = part.Vertices.VertexChannels.Where(c =>
@@ -128,10 +157,45 @@ namespace ColladaXnaImporter
                     }
 
                     // Vertex channels other than position
-                    List<XnaVertexChannel> channels = new List<XnaVertexChannel>();
+                    List<XnaVertexChannel> channels = new List<XnaVertexChannel>();                    
+
                     foreach (CVertexChannel cvChannel in part.Vertices.VertexChannels)
-                        if (cvChannel.Description.VertexElementUsage != VertexElementUsage.Position)
-                            channels.Add(new XnaVertexChannel(meshBuilder, cvChannel));
+                    {
+                        switch (cvChannel.Description.VertexElementUsage)
+                        {
+                            case VertexElementUsage.Position:
+                                // Position is already created above
+                                break;
+
+                            case VertexElementUsage.BlendWeight:
+                            case VertexElementUsage.BlendIndices:
+                                // When bone weight collections are used these two
+                                // channels get added separately later
+                                if (UseBoneWeightCollection || excludeBlendWeights)                                    
+                                    break;
+                                else
+                                    goto default;
+
+                            default:
+                                // standard channel like texcoord, normal etc.
+                                channels.Add(new XnaVertexChannel(meshBuilder, cvChannel));
+                                break;
+                        }
+                    }
+
+                    // BoneWeightCollection vertex channel
+                    if (UseBoneWeightCollection && !excludeBlendWeights)
+                    {
+                        try
+                        {
+                            channels.Add(new XnaBoneWeightChannel(meshBuilder, part.Vertices, 
+                                collada.Joints));
+                        }
+                        catch (Exception)
+                        {
+                            importerContext.Logger.LogMessage("No skinning information found");
+                        }
+                    }                    
 
                     // Triangles
                     for (int i = 0; i < part.Indices.Length; i += 3)
@@ -161,7 +225,7 @@ namespace ColladaXnaImporter
                 var sourceAnim = collada.JointAnimations[i];
 
                 AnimationContent animation = new AnimationContent();
-                animation.Name = sourceAnim.Name ?? String.Format("Animation{0}", i);
+                animation.Name = sourceAnim.Name ?? String.Format("Take {0:000}", (i+1));
                 animation.Duration = TimeSpan.FromSeconds(sourceAnim.EndTime - sourceAnim.StartTime);
 
                 foreach (var sourceChannel in sourceAnim.Channels)
@@ -199,7 +263,7 @@ namespace ColladaXnaImporter
         /// <returns>String key that assumes one of the following possible values in ascending
         /// precedence (depending on the availability of each property): 
         /// Name > GlobalID > ScopedID > Joint[NR]</returns>
-        String GetJointKey(Joint joint)
+        protected static String GetJointKey(Joint joint)
         {
             if (joint.Name != null && joint.Name.Length > 0)
                 return joint.Name;
@@ -224,7 +288,9 @@ namespace ColladaXnaImporter
 
             // Attach animations to root bone 
             foreach (var animation in animations)
-                root.Animations.Add(animation.Name, animation);            
+                root.Animations.Add(animation.Name, animation);
+
+            rootNode.Children.Add(root);
         }
 
         BoneContent CreateSkeleton(Joint joint)
@@ -243,106 +309,188 @@ namespace ColladaXnaImporter
 
             return bone;
         }
-    }    
-
-    /// <summary>
-    /// Helper class for creating vertex channels with MeshBuilder
-    /// from Collada VertexChannels.
-    /// </summary>
-    class XnaVertexChannel
-    {
-        private MeshBuilder _meshBuilder;
-        private CVertexChannel _colladaVertexChannel;
-        private int _channelIndex;
-        private int _vertexSize;
-        private int _offset;        
 
         /// <summary>
-        /// Creates a new vertex channel using the given MeshBuilder based on a
-        /// Collada VertexChannel. No data is initially added to the vertex channel!
-        /// For this, use the SetData method.
+        /// Helper class for creating vertex channels with MeshBuilder
+        /// from Collada VertexChannels.
         /// </summary>
-        /// <param name="meshBuilder">MeshBuilder instance to store vertex channel in</param>
-        /// <param name="colladaVertexChannel">Original COLLADA Vertex Channel</param>
-        public XnaVertexChannel(MeshBuilder meshBuilder, CVertexChannel colladaVertexChannel)
+        class XnaVertexChannel
         {
-            _colladaVertexChannel = colladaVertexChannel;
-            _meshBuilder = meshBuilder;
-            _vertexSize = colladaVertexChannel.Source.Stride;
-            _offset = colladaVertexChannel.Source.Offset;
+            protected MeshBuilder _meshBuilder;
+            protected CVertexChannel _colladaVertexChannel;            
+            protected int _channelIndex;
+            protected int _vertexSize;
+            protected int _offset;            
 
-            Create();
-        }
-
-        /// <summary>
-        /// Creates the vertex channel using the MeshBuilder (no data is added yet).
-        /// </summary>
-        protected void Create()
-        {
-            var usage = _colladaVertexChannel.Description.VertexElementUsage;
-            int usageIndex = _colladaVertexChannel.Description.UsageIndex;
-
-            String usageString = VertexChannelNames.EncodeName(usage, usageIndex);
-
-            switch (_colladaVertexChannel.Description.VertexElementFormat)
+            /// <summary>
+            /// Creates a new vertex channel using the given MeshBuilder based on a
+            /// Collada VertexChannel. No data is initially added to the vertex channel!
+            /// For this, use the SetData method.
+            /// </summary>
+            /// <param name="meshBuilder">MeshBuilder instance to store vertex channel in</param>
+            /// <param name="colladaVertexChannel">Original COLLADA Vertex Channel</param>
+            public XnaVertexChannel(MeshBuilder meshBuilder, CVertexChannel colladaVertexChannel)
             {
-                case VertexElementFormat.Vector4:
-                    _channelIndex = _meshBuilder.CreateVertexChannel<Vector4>(usageString);
-                    break;
+                _colladaVertexChannel = colladaVertexChannel;                
+                _meshBuilder = meshBuilder;
+                _vertexSize = colladaVertexChannel.Source.Stride;
+                _offset = colladaVertexChannel.Source.Offset;                
 
-                case VertexElementFormat.Vector3:
-                    _channelIndex = _meshBuilder.CreateVertexChannel<Vector3>(usageString);
-                    break;
+                Create();
+            }
 
-                case VertexElementFormat.Vector2:
-                    _channelIndex = _meshBuilder.CreateVertexChannel<Vector2>(usageString);
-                    break;
+            protected XnaVertexChannel(MeshBuilder mb)
+            {
+                _meshBuilder = mb;
+            }
 
-                case VertexElementFormat.Single:
-                    _channelIndex = _meshBuilder.CreateVertexChannel<Single>(usageString);
-                    break;
+            /// <summary>
+            /// Creates the vertex channel using the MeshBuilder (no data is added yet).
+            /// </summary>
+            protected virtual void Create()
+            {
+                var usage = _colladaVertexChannel.Description.VertexElementUsage;
+                int usageIndex = _colladaVertexChannel.Description.UsageIndex;
 
-                default:
-                    throw new Exception("Unexpected vertex element format");
+                // Construct correct usage string
+                String usageString = VertexChannelNames.EncodeName(usage, usageIndex);                         
+
+                // Generic standard channel (TexCoord, Normal, Binormal, etc.)
+                switch (_colladaVertexChannel.Description.VertexElementFormat)
+                {
+                    case VertexElementFormat.Vector4:
+                        _channelIndex = _meshBuilder.CreateVertexChannel<Vector4>(usageString);
+                        break;
+
+                    case VertexElementFormat.Vector3:
+                        _channelIndex = _meshBuilder.CreateVertexChannel<Vector3>(usageString);
+                        break;
+
+                    case VertexElementFormat.Vector2:
+                        _channelIndex = _meshBuilder.CreateVertexChannel<Vector2>(usageString);
+                        break;
+
+                    case VertexElementFormat.Single:
+                        _channelIndex = _meshBuilder.CreateVertexChannel<Single>(usageString);                        
+                        break;
+
+                    default:
+                        throw new Exception("Unexpected vertex element format");
+                }
+            }
+
+            /// <summary>
+            /// Sets vertex channel data for the current vertex (controlled externally through the
+            /// MeshBuilder instance) to the value found at given index in the original COLLADA
+            /// Vertex Channel.
+            /// </summary>
+            /// <param name="index">Index of element in the original COLLADA Vertex Channel</param>
+            public virtual void SetData(int index)
+            {                
+                int i = _colladaVertexChannel.Indices[index] * _vertexSize + _offset;
+                float[] data = _colladaVertexChannel.Source.Data;
+
+                object value;
+
+                switch (_colladaVertexChannel.Description.VertexElementFormat)
+                {
+                    case VertexElementFormat.Vector4:
+                        value = new Vector4(data[i], data[i + 1], data[i + 2], data[i + 3]);
+                        break;
+
+                    case VertexElementFormat.Vector3:
+                        value = new Vector3(data[i], data[i + 1], data[i + 2]);
+                        break;
+
+                    case VertexElementFormat.Vector2:
+                        value = new Vector2(data[i], data[i + 1]);
+                        break;
+
+                    case VertexElementFormat.Single:
+                        value = data[i];
+                        break;
+
+                    default:
+                        throw new Exception("Unexpected vertex element format");
+                }
+
+                _meshBuilder.SetVertexChannelData(_channelIndex, value);        
             }
         }
 
-        /// <summary>
-        /// Sets vertex channel data for the current vertex (controlled externally through the
-        /// MeshBuilder instance) to the value found at given index in the original COLLADA
-        /// Vertex Channel.
-        /// </summary>
-        /// <param name="index">Index of element in the original COLLADA Vertex Channel</param>
-        public void SetData(int index)
+        class XnaBoneWeightChannel : XnaVertexChannel
         {
-            int i = _colladaVertexChannel.Indices[index] * _vertexSize + _offset;
-            float[] data = _colladaVertexChannel.Source.Data;
+            JointList _joints;
 
-            object value;
+            CVertexChannel _indicesChannel;
+            CVertexChannel _weightChannel;
 
-            switch (_colladaVertexChannel.Description.VertexElementFormat)
+            int _indicesOffset;
+            int _weightOffset;
+
+            public XnaBoneWeightChannel(MeshBuilder mb, VertexContainer vc, JointList joints)        
+                : base(mb)
             {
-                case VertexElementFormat.Vector4:
-                    value = new Vector4(data[i], data[i + 1], data[i + 2], data[i + 3]);
-                    break;
+                try
+                {
+                    _indicesChannel = (from c in vc.VertexChannels
+                                       where c.Contains(VertexElementUsage.BlendIndices)
+                                       select c).First();
 
-                case VertexElementFormat.Vector3:
-                    value = new Vector3(data[i], data[i + 1], data[i + 2]);
-                    break;
+                    _weightChannel = (from c in vc.VertexChannels
+                                      where c.Contains(VertexElementUsage.BlendWeight)
+                                      select c).First();
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Missing blend indices or weights");
+                }
 
-                case VertexElementFormat.Vector2:
-                    value = new Vector2(data[i], data[i + 1]);
-                    break;
+                _joints = joints;
+                _vertexSize = vc.VertexSize;
+                _indicesOffset = _indicesChannel.Source.Offset;
+                _weightOffset = _weightChannel.Source.Offset;
 
-                case VertexElementFormat.Single:
-                    value = data[i];
-                    break;
-
-                default:
-                    throw new Exception("Unexpected vertex element format");
+                this.Create();           
             }
 
-            _meshBuilder.SetVertexChannelData(_channelIndex, value);            
+            protected override void Create()
+            {                                
+                String usageString = VertexChannelNames.Weights();
+                _channelIndex = _meshBuilder.CreateVertexChannel<BoneWeightCollection>(usageString);
+            }
+
+            public override void SetData(int index)
+            {
+                int i = _indicesChannel.Indices[index] * _vertexSize + _indicesOffset;
+                int j = _weightChannel.Indices[index] * _vertexSize + _weightOffset;
+
+                // Both channels use the same source data
+                float[] data = _indicesChannel.Source.Data;
+
+                float[] blendIndices = new float[] { data[i + 0], data[i + 1], data[i + 2], data[i + 3] };
+                float[] blendWeights = new float[] { data[j + 0], data[j + 1], data[j + 2], 0 };
+
+                // Fourth blend weight is stored implicitly
+                blendWeights[3] = 1 - blendWeights[0] - blendWeights[1] - blendWeights[2];
+                if (blendWeights[3] == 1) blendWeights[3] = 0;
+
+                BoneWeightCollection weights = new BoneWeightCollection();
+
+                for (int k = 0; k < blendIndices.Length; k++)
+                {
+                    int jointIndex = (int)blendIndices[k];
+                    float jointWeight = blendWeights[k];
+                    if (jointWeight <= 0) continue;
+
+                    String jointName = GetJointKey(_joints[jointIndex]);
+                    
+                    weights.Add(new BoneWeight(jointName, jointWeight));
+                }
+
+                if (weights.Count > 0)
+                    _meshBuilder.SetVertexChannelData(_channelIndex, weights);        
+            }
         }
-    }
+    }        
 }
