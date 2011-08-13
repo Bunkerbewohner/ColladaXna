@@ -14,12 +14,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ColladaXna.Base
 {
+    /// <summary>
+    /// ColladaModel is a container class for all Model related contents.
+    /// The contents are stored in a way that is easily accessible.
+    /// </summary>
     public class ColladaModel
     {
         /// <summary>
         /// Name of the COLLADA file that this model is based on
         /// </summary>
-        public String SourceFilename;
+        public String SourceFilename = String.Empty;
 
         /// <summary>
         /// Collection of different meshes (geometry only)
@@ -72,18 +76,32 @@ namespace ColladaXna.Base
             }
         }
 
+        /// <summary>
+        /// Creates an empty ColladaModel instance
+        /// </summary>
         public ColladaModel()
         {
 
         }
 
+        /// <summary>
+        /// Creates a new ColladaModel instance and directly loads
+        /// the given .DAE file.
+        /// </summary>
+        /// <param name="filename">.DAE file path</param>
         public ColladaModel(String filename)
         {
             SourceFilename = filename;
-            Load();
+            Load(filename);
         }
 
-        protected void Load()
+        /// <summary>
+        /// Loads the contents of given .DAE file into this ColladaModel
+        /// instance. Existing contents are overriden. This method is
+        /// automatically called by the constructor that accepts a filename.
+        /// </summary>
+        /// <param name="filename">.DAE file path</param>
+        public void Load(String filename)
         {
             List<IColladaImporter> importers = new List<IColladaImporter>();
             importers.Add(new SkeletonImporter());

@@ -29,6 +29,12 @@ namespace ColladaXnaImporter
         MeshBuilder meshBuilder;
         Dictionary<String, MaterialContent> materials;        
 
+        /// <summary>
+        /// Imports the COLLADA Model from the given .DAE file into the XNA Content Model.
+        /// </summary>
+        /// <param name="filename">Path to .DAE file</param>
+        /// <param name="context">Context (is not used)</param>
+        /// <returns></returns>
         public override NodeContent Import(string filename, ContentImporterContext context)
         {
             importerContext = context;
@@ -49,6 +55,10 @@ namespace ColladaXnaImporter
             return rootNode;
         }       
 
+        /// <summary>
+        /// Creates BasicMaterialContent instances for each COLLADA material and stores
+        /// them in the "materials" dictionary of this class. 
+        /// </summary>
         void CreateMaterials()
         {
             materials = new Dictionary<string, MaterialContent>();
@@ -84,6 +94,10 @@ namespace ColladaXnaImporter
             }            
         }
             
+        /// <summary>
+        /// Creates MeshContent instances for each mesh in the COLLADA model and attaches
+        /// them to the NodeContent root.
+        /// </summary>
         void CreateMeshes()
         {
             foreach (Mesh mesh in collada.Meshes)
@@ -137,6 +151,10 @@ namespace ColladaXnaImporter
         }
     }
 
+    /// <summary>
+    /// Helper class for creating vertex channels with MeshBuilder
+    /// from Collada VertexChannels.
+    /// </summary>
     class XnaVertexChannel
     {
         private MeshBuilder _meshBuilder;
@@ -145,6 +163,13 @@ namespace ColladaXnaImporter
         private int _vertexSize;
         private int _offset;        
 
+        /// <summary>
+        /// Creates a new vertex channel using the given MeshBuilder based on a
+        /// Collada VertexChannel. No data is initially added to the vertex channel!
+        /// For this, use the SetData method.
+        /// </summary>
+        /// <param name="meshBuilder">MeshBuilder instance to store vertex channel in</param>
+        /// <param name="colladaVertexChannel">Original COLLADA Vertex Channel</param>
         public XnaVertexChannel(MeshBuilder meshBuilder, CVertexChannel colladaVertexChannel)
         {
             _colladaVertexChannel = colladaVertexChannel;
@@ -155,6 +180,9 @@ namespace ColladaXnaImporter
             Create();
         }
 
+        /// <summary>
+        /// Creates the vertex channel using the MeshBuilder (no data is added yet).
+        /// </summary>
         protected void Create()
         {
             var usage = _colladaVertexChannel.Description.VertexElementUsage;
@@ -185,6 +213,12 @@ namespace ColladaXnaImporter
             }
         }
 
+        /// <summary>
+        /// Sets vertex channel data for the current vertex (controlled externally through the
+        /// MeshBuilder instance) to the value found at given index in the original COLLADA
+        /// Vertex Channel.
+        /// </summary>
+        /// <param name="index">Index of element in the original COLLADA Vertex Channel</param>
         public void SetData(int index)
         {
             int i = _colladaVertexChannel.Indices[index] * _vertexSize + _offset;

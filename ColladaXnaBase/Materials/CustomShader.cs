@@ -5,6 +5,10 @@ using System.Text;
 
 namespace ColladaXna.Base.Materials
 {
+    /// <summary>
+    /// Describes the material by providing a custom FX file and its 
+    /// property bindings.
+    /// </summary>
     public class CustomShader : ShaderProperty
     {
         /// <summary>

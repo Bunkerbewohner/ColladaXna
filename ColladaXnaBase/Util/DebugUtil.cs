@@ -6,7 +6,7 @@ namespace ColladaXna.Base.Util
 {
     public static class DebugUtil
     {
-        public static string DefaultDebugOutputFile = @"C:\Users\Mathias\Desktop\Debug\debug.log";
+        public static string DefaultDebugOutputFile = @"debug.log";
 
         static Dictionary<string, TraceListener> listeners = 
             new Dictionary<string, TraceListener>();
