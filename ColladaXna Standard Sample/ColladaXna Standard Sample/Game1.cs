@@ -173,7 +173,7 @@ namespace ColladaXna_Standard_Sample
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(new Color(240, 240, 240));
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -189,7 +189,7 @@ namespace ColladaXna_Standard_Sample
                 spriteBatch.Begin();
 
                 spriteBatch.DrawString(font, "WASD - Move X/Z\nArrows - Rotate\nPgUp/Dn - Move Y\nDigits - Choose Model",
-                    new Vector2(25, 25), Color.White);
+                    new Vector2(25, 25), Color.Black);
 
                 spriteBatch.End();
             }

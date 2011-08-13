@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("ColladaXnaBase")]
 [assembly: AssemblyProduct("ColladaXnaBase")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
+[assembly: AssemblyDescription("COLLADA Importer for XNA")]
+[assembly: AssemblyCompany("Mathias Kahl")]
+[assembly: AssemblyCopyright("Copyright © Mathias Kahl 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
