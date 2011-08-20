@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 using System.Diagnostics;
@@ -36,6 +37,58 @@ namespace ColladaXna.Base.Import
             XmlNodeList xmlAnimations = xmlRoot.SelectNodes("/COLLADA/library_animations/animation");
 
             ImportAnimations(xmlAnimations, model);
+
+            // Import the animation clips library
+            XmlNode xmlNode = xmlRoot.SelectSingleNode("/COLLADA/library_animation_clips");
+            ImportAnimationClips(xmlNode, model);
+        }
+
+        private void ImportAnimationClips(XmlNode xmlNode, ColladaModel model)
+        {
+            if (xmlNode == null || model.JointAnimations == null || !model.JointAnimations.Any())
+                return;
+
+            XmlNodeList xmlClips = xmlNode.SelectNodes("animation_clip");
+            if (xmlClips == null) return;
+
+            foreach (XmlNode xmlClip in xmlClips)
+            {
+                // Reference name of the animation clip: name > id > sid
+                String name = xmlClip.GetAttributeString("name") ??
+                              (xmlClip.GetAttributeString("id") ??
+                               xmlClip.GetAttributeString("sid"));
+
+                // Start and end times
+                float start = float.Parse(xmlClip.Attributes["start"].Value, 
+                    CultureInfo.InvariantCulture);
+
+                float end = float.Parse(xmlClip.Attributes["end"].Value, 
+                    CultureInfo.InvariantCulture);
+
+                // Animations to be played
+                XmlNodeList xmlInstances = xmlClip.SelectNodes("instance_animation");
+                if (xmlInstances == null) return;
+
+                List<JointAnimation> animations = new List<JointAnimation>();
+
+                foreach (XmlNode xmlInstance in xmlInstances)
+                {
+                    // Assume url="#id"
+                    String id = xmlInstance.GetAttributeString("url").Substring(1);
+
+                    // Find animation with given id
+                    var temp = from a in model.JointAnimations
+                               where a.GlobalID.Equals("id")
+                               select a;
+
+                    animations.AddRange(temp);
+                }
+
+                JointAnimationClip clip = new JointAnimationClip(animations.ToArray(), 
+                    TimeSpan.FromSeconds(start), TimeSpan.FromSeconds(end));
+
+                model.JointAnimationClips.Add(clip);
+            }
         }
 
         #endregion

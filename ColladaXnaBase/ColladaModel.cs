@@ -58,6 +58,11 @@ namespace ColladaXna.Base
         public JointAnimationList JointAnimations = new JointAnimationList();
 
         /// <summary>
+        /// List of animation clips 
+        /// </summary>
+        public List<JointAnimationClip> JointAnimationClips = new List<JointAnimationClip>();
+
+        /// <summary>
         /// Returns the Root joint of the model, which by convention is the last joint
         /// in the Joints collection.
         /// </summary>
