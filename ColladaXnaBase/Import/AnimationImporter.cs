@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 using System.Diagnostics;
@@ -19,10 +20,14 @@ namespace ColladaXna.Base.Import
     /// thus the SkeletonImporter must be executed beforehand.</remarks>
     public class AnimationImporter : IColladaImporter
     {
+        private ColladaModel _model;
+
         #region IColladaImporter Member
 
         public void Import(XmlNode xmlRoot, ColladaModel model)
-        {            
+        {
+            _model = model;
+
             // Find skin definitions. Multiple skin definitions are supported
             // but they have to work on disjoint sets (relate to different joints)
             XmlNodeList xmlSkins = xmlRoot.SelectNodes(".//skin");
@@ -36,6 +41,58 @@ namespace ColladaXna.Base.Import
             XmlNodeList xmlAnimations = xmlRoot.SelectNodes("/COLLADA/library_animations/animation");
 
             ImportAnimations(xmlAnimations, model);
+
+            // Import the animation clips library
+            XmlNode xmlNode = xmlRoot.SelectSingleNode("/COLLADA/library_animation_clips");
+            ImportAnimationClips(xmlNode, model);
+        }
+
+        private void ImportAnimationClips(XmlNode xmlNode, ColladaModel model)
+        {
+            if (xmlNode == null || model.JointAnimations == null || !model.JointAnimations.Any())
+                return;
+
+            XmlNodeList xmlClips = xmlNode.SelectNodes("animation_clip");
+            if (xmlClips == null) return;
+
+            foreach (XmlNode xmlClip in xmlClips)
+            {
+                // Reference name of the animation clip: name > id > sid
+                String name = xmlClip.GetAttributeString("name") ??
+                              (xmlClip.GetAttributeString("id") ??
+                               xmlClip.GetAttributeString("sid"));
+
+                // Start and end times
+                float start = float.Parse(xmlClip.Attributes["start"].Value, 
+                    CultureInfo.InvariantCulture);
+
+                float end = float.Parse(xmlClip.Attributes["end"].Value, 
+                    CultureInfo.InvariantCulture);
+
+                // Animations to be played
+                XmlNodeList xmlInstances = xmlClip.SelectNodes("instance_animation");
+                if (xmlInstances == null) return;
+
+                List<JointAnimation> animations = new List<JointAnimation>();
+
+                foreach (XmlNode xmlInstance in xmlInstances)
+                {
+                    // Assume url="#id"
+                    String id = xmlInstance.GetAttributeString("url").Substring(1);
+
+                    // Find animation with given id
+                    var temp = from a in model.JointAnimations
+                               where a.GlobalID.Equals("id")
+                               select a;
+
+                    animations.AddRange(temp);
+                }
+
+                JointAnimationClip clip = new JointAnimationClip(animations.ToArray(), 
+                    TimeSpan.FromSeconds(start), TimeSpan.FromSeconds(end));
+
+                model.JointAnimationClips.Add(clip);
+            }
         }
 
         #endregion
@@ -69,7 +126,13 @@ namespace ColladaXna.Base.Import
 
         static bool DoesAnimationAffectJoints(Dictionary<string, Joint> joints, XmlNode xmlAnimation)
         {
-            XmlNode xmlChannel = xmlAnimation.SelectSingleNode("channel");
+            XmlNode xmlChannel = xmlAnimation.SelectSingleNode("//channel");
+            if (xmlChannel == null)
+            {
+                throw new Exception("Animation '" + xmlAnimation.Attributes["id"].Value + 
+                    "' does not contain a channel:" + xmlAnimation.ChildNodes.Count);
+            }
+
             string target = xmlChannel.Attributes["target"].Value;
 
             return joints.ContainsKey(ExtractNodeIdFromTarget(target));
@@ -226,7 +289,7 @@ namespace ColladaXna.Base.Import
 
         static JointAnimation ImportAnimation(XmlNode xmlAnimation, Dictionary<string,Joint> joints)
         {
-            XmlNodeList xmlChannels = xmlAnimation.SelectNodes("channel");
+            XmlNodeList xmlChannels = xmlAnimation.SelectNodes("//channel");
             List<JointAnimationChannel> channels = new List<JointAnimationChannel>();
 
             foreach (XmlNode xmlChannel in xmlChannels)
@@ -235,13 +298,16 @@ namespace ColladaXna.Base.Import
                 string target = xmlChannel.Attributes["target"].Value;
                 string jointId = ExtractNodeIdFromTarget(target);
                 if (!joints.ContainsKey(jointId))
-                    throw new ApplicationException("Animated Joint '" + jointId + "' not found");
+                {
+                    continue;
+                    //throw new ApplicationException("Animated Joint '" + jointId + "' not found");
+                }
 
                 Joint joint = joints[jointId];                
 
                 // Sampler
                 string samplerId = xmlChannel.Attributes["source"].Value.Substring(1);
-                XmlNode xmlSampler = xmlAnimation.SelectSingleNode("sampler[@id='" + samplerId + "']");
+                XmlNode xmlSampler = xmlAnimation.SelectSingleNode("//sampler[@id='" + samplerId + "']");
                 if (xmlSampler == null)
                     throw new ApplicationException("Animation Sampler '" + samplerId + "' not found");
 
@@ -278,9 +344,9 @@ namespace ColladaXna.Base.Import
             string target)
         {            
             // Input and Output sources
-            Source input = Source.FromInput(xmlSampler.SelectSingleNode("input[@semantic='INPUT']"),
+            Source input = Source.FromInput(xmlSampler.SelectSingleNode("//input[@semantic='INPUT']"),
                                             xmlAnimation);
-            Source output = Source.FromInput(xmlSampler.SelectSingleNode("input[@semantic='OUTPUT']"),
+            Source output = Source.FromInput(xmlSampler.SelectSingleNode("//input[@semantic='OUTPUT']"),
                                              xmlAnimation);
 
             // Target (matrix, translation.*, rotation.*, scale.*)

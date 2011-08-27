@@ -54,6 +54,7 @@
       <Name>apc-model</Name>
       <Importer>ColladaStdModelImporter</Importer>
       <Processor>ModelProcessor</Processor>
+      <SubType>Designer</SubType>
       <ProcessorParameters_RotationZ>-45</ProcessorParameters_RotationZ>
     </Compile>
   </ItemGroup>
@@ -63,8 +64,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Name>marcus</Name>
       <Importer>ColladaStdModelImporter</Importer>
-      <Processor>ModelProcessor</Processor>
-      <ProcessorParameters_RotationZ>135</ProcessorParameters_RotationZ>
+      <Processor>SkinnedModelProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -76,8 +76,25 @@
       <Project>{625E5D7F-86F6-4961-89D0-3835BF261ACC}</Project>
       <Name>ColladaXnaImporter</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SkinnedModelPipeline\SkinnedModelPipeline.csproj">
+      <Project>{4636C7E1-B845-4B83-B96D-64A11B8A4515}</Project>
+      <Name>SkinnedModelPipeline</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Igor\Igor.dae">
+      <Name>Igor</Name>
+      <Importer>ColladaStdModelImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+      <ProcessorParameters_Scale>20</ProcessorParameters_Scale>
+      <ProcessorParameters_RotationZ>180</ProcessorParameters_RotationZ>
+    </Compile>
+    <Compile Include="Igor\IgorTex.tga">
+      <Name>IgorTex</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Spore\Bulldogtopus.dae">
       <Name>Bulldogtopus</Name>

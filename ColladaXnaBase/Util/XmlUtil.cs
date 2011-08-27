@@ -518,7 +518,7 @@ namespace ColladaXna.Base.Util
             if (xmlInput.Attributes["source"] != null)
             {
                 string sourceId = xmlInput.Attributes["source"].Value.Substring(1);
-                XmlNode xmlSource = xmlParent.SelectSingleNode(".//source[@id='" + sourceId + "']");
+                XmlNode xmlSource = xmlParent.OwnerDocument.DocumentElement.SelectSingleNode(".//source[@id='" + sourceId + "']");
                 Debug.Assert(xmlSource != null, "Source '" + sourceId + "' not found");
                 return new Source(xmlSource);
             }

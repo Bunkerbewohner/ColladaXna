@@ -107,6 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnimatedModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
@@ -119,6 +120,10 @@
     <ProjectReference Include="..\..\ColladaXnaBase\ColladaXnaBase.csproj">
       <Project>{65FE2973-B4E6-49DE-8F57-55490D4B4FD4}</Project>
       <Name>ColladaXnaBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SkinnedModel\SkinnedModelWindows.csproj">
+      <Project>{0D41E29B-829F-4255-BCA5-64DC2677DA6D}</Project>
+      <Name>SkinnedModelWindows</Name>
     </ProjectReference>
     <ProjectReference Include="..\ColladaXna Standard SampleContent\ColladaXna Standard SampleContent.contentproj">
       <Name>ColladaXna_Standard_SampleContent</Name>

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using SkinnedModel;
 
 namespace ColladaXna_Standard_Sample
 {
@@ -32,10 +33,17 @@ namespace ColladaXna_Standard_Sample
         bool showHints = true;
 
         List<Model> models = new List<Model>();
+        Dictionary<Model, AnimatedModel> animatedModels = new Dictionary<Model, AnimatedModel>();
+
         int selectedModel = 0;
 
-        string[] modelPaths = { "APC/apc-model", "Marcus/marcus", "Spore/Bulldogtopus"
-                 };   
+        string[] modelPaths = { "APC/apc-model", "Marcus/marcus", "Spore/Bulldogtopus", "Igor/igor"
+                 };
+
+        protected Model CurrentModel
+        {
+            get { return models[selectedModel]; }
+        }
 
         public Game1()
         {
@@ -43,8 +51,8 @@ namespace ColladaXna_Standard_Sample
             Content.RootDirectory = "Content";
             
             graphics.PreferMultiSampling = true;
-            graphics.PreferredBackBufferWidth = 1600;
-            graphics.PreferredBackBufferHeight = 900;
+            //graphics.PreferredBackBufferWidth = 1600;
+            //graphics.PreferredBackBufferHeight = 900;
             //graphics.IsFullScreen = true;
         }
 
@@ -87,14 +95,36 @@ namespace ColladaXna_Standard_Sample
                 Model model = Content.Load<Model>(path);
                 models.Add(model);
 
-                // Some default settings for the BasicEffects that is used
-                foreach (ModelMesh mesh in model.Meshes)
+                // Distinguish between animated and static models
+                if (model.Tag is SkinningData)
                 {
-                    foreach (BasicEffect effect in mesh.Effects)
+                    // Store wrapper instance for animated model
+                    animatedModels.Add(model, new AnimatedModel(model));
+
+                    // Adjust shader parameters
+                    foreach (var mesh in model.Meshes)
                     {
-                        effect.EnableDefaultLighting();
-                        effect.TextureEnabled = true;
-                        effect.PreferPerPixelLighting = true;
+                        foreach (SkinnedEffect effect in mesh.Effects)
+                        {
+                            effect.EnableDefaultLighting();
+                            effect.PreferPerPixelLighting = true;
+                        }
+                    }
+
+                    // Start default animation clip
+                    animatedModels[model].Play();
+                }
+                else
+                {
+                    // Adjust shader parameters
+                    foreach (ModelMesh mesh in model.Meshes)
+                    {
+                        foreach (BasicEffect effect in mesh.Effects)
+                        {
+                            effect.EnableDefaultLighting();
+                            effect.TextureEnabled = true;
+                            effect.PreferPerPixelLighting = true;
+                        }
                     }
                 }
             }
@@ -119,7 +149,8 @@ namespace ColladaXna_Standard_Sample
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
 
             var keyboard = Keyboard.GetState();
@@ -164,6 +195,12 @@ namespace ColladaXna_Standard_Sample
                 }
             }
 
+            // Update animation
+            if (animatedModels.ContainsKey(CurrentModel))
+            {
+                animatedModels[CurrentModel].Update(gameTime);
+            }
+
             base.Update(gameTime);
         }
 
@@ -182,7 +219,16 @@ namespace ColladaXna_Standard_Sample
 
             world = Matrix.CreateFromYawPitchRoll(rot.Y, rot.X, rot.Z) * Matrix.CreateTranslation(pos);
 
-            models[selectedModel].Draw(world, view, projection);
+            if (animatedModels.ContainsKey(CurrentModel))
+            {
+                // Draw animated model 
+                animatedModels[CurrentModel].Draw(world, view, projection);
+            }
+            else
+            {
+                // Draw static model
+                models[selectedModel].Draw(world, view, projection);
+            }
 
             if (showHints)
             {
