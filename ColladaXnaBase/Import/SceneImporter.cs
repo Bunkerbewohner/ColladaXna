@@ -110,11 +110,11 @@ namespace ColladaXna.Base.Import
         }
 
         Matrix CreateAbsoluteTransformFromSkeleton(XmlNode xmlControllerInstance)
-        {
+        {            
             XmlNode skeleton = xmlControllerInstance.SelectSingleNode("skeleton");
             string nodeId = skeleton != null
                 ? skeleton.InnerText.Trim().Substring(1)
-                : _model.RootJoint.GlobalID;
+                : _model.RootJoint.GlobalID;                        
 
             XmlNode xmlRoot = xmlControllerInstance.OwnerDocument.DocumentElement;
             XmlNode xmlNode = xmlRoot.SelectSingleNode("id('" + nodeId + "')");

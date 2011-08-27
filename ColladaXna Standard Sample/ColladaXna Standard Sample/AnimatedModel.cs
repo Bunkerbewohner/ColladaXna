@@ -70,6 +70,12 @@ namespace ColladaXna_Standard_Sample
             player.StartClip(clip);
         }
 
+        public void PlayFirstClip()
+        {
+            AnimationClip clip = skinningData.AnimationClips.Values.First();
+            player.StartClip(clip);
+        }
+
         /// <summary>
         /// Advances the animation by given time and updates the model
         /// skin accordingly.

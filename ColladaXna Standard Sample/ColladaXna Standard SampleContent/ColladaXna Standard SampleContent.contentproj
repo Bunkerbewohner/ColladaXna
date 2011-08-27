@@ -55,7 +55,7 @@
       <Importer>ColladaStdModelImporter</Importer>
       <Processor>ModelProcessor</Processor>
       <SubType>Designer</SubType>
-      <ProcessorParameters_RotationZ>-45</ProcessorParameters_RotationZ>
+      <ProcessorParameters_RotationZ>-180</ProcessorParameters_RotationZ>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -86,8 +86,7 @@
       <Name>Igor</Name>
       <Importer>ColladaStdModelImporter</Importer>
       <Processor>ModelProcessor</Processor>
-      <ProcessorParameters_Scale>20</ProcessorParameters_Scale>
-      <ProcessorParameters_RotationZ>180</ProcessorParameters_RotationZ>
+      <ProcessorParameters_Scale>30</ProcessorParameters_Scale>
     </Compile>
     <Compile Include="Igor\IgorTex.tga">
       <Name>IgorTex</Name>
@@ -101,7 +100,6 @@
       <Importer>ColladaStdModelImporter</Importer>
       <Processor>ModelProcessor</Processor>
       <ProcessorParameters_Scale>30</ProcessorParameters_Scale>
-      <ProcessorParameters_RotationZ>135</ProcessorParameters_RotationZ>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

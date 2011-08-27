@@ -28,8 +28,8 @@ namespace ColladaXna_Standard_Sample
         Matrix view;
         Matrix projection;
 
-        Vector3 pos = Vector3.Zero;
-        Vector3 rot = Vector3.Zero;
+        Vector3 pos;
+        Vector3 rot;
         bool showHints = true;
 
         List<Model> models = new List<Model>();
@@ -75,7 +75,7 @@ namespace ColladaXna_Standard_Sample
             view = Matrix.CreateLookAt(new Vector3(0, 0, -10), Vector3.Zero, Vector3.Up);
 
             pos = new Vector3(0, -40, 100);
-            rot = new Vector3(-MathHelper.PiOver2, 0, 0);
+            rot = new Vector3(-MathHelper.PiOver2, 0, MathHelper.Pi - MathHelper.PiOver4);
 
             base.Initialize();
         }
@@ -112,7 +112,7 @@ namespace ColladaXna_Standard_Sample
                     }
 
                     // Start default animation clip
-                    animatedModels[model].Play();
+                    animatedModels[model].PlayFirstClip();
                 }
                 else
                 {

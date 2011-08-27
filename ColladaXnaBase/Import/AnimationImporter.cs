@@ -344,9 +344,9 @@ namespace ColladaXna.Base.Import
             string target)
         {            
             // Input and Output sources
-            Source input = Source.FromInput(xmlSampler.SelectSingleNode("//input[@semantic='INPUT']"),
+            Source input = Source.FromInput(xmlSampler.SelectSingleNode("input[@semantic='INPUT']"),
                                             xmlAnimation);
-            Source output = Source.FromInput(xmlSampler.SelectSingleNode("//input[@semantic='OUTPUT']"),
+            Source output = Source.FromInput(xmlSampler.SelectSingleNode("input[@semantic='OUTPUT']"),
                                              xmlAnimation);
 
             // Target (matrix, translation.*, rotation.*, scale.*)
