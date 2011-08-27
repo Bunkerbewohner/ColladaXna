@@ -34,8 +34,7 @@ namespace ColladaXna.Base.Import
             Joint root = new Joint("__root")
                              {
                                  Parent = null,
-                                 Transform = Matrix.Identity,
-                                 AbsoluteTransform = Matrix.Identity,
+                                 Transform = Matrix.Identity,                                 
                                  Index = 0,
                                  ScopedID = "__root",
                                  GlobalID = "__root"
@@ -71,9 +70,7 @@ namespace ColladaXna.Base.Import
                                   Transform = CreateNodeTransform(xmlNode),          
                                   GlobalID = xmlNode.GetAttributeString("id"),
                                   ScopedID = xmlNode.GetAttributeString("sid")                                  
-                              };
-
-                joint.AbsoluteTransform = joint.Transform * parent.AbsoluteTransform;
+                              };                
 
                 // Check if this joint was already added, only possible if ID is set);
                 if (!String.IsNullOrEmpty(joint.GlobalID))

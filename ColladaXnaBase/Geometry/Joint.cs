@@ -85,7 +85,14 @@ namespace ColladaXna.Base.Geometry
         /// depending on the transformation of the parent's
         /// absolute transformation.
         /// </summary>
-        public Matrix AbsoluteTransform = Matrix.Identity;
+        public Matrix AbsoluteTransform
+        {
+            get
+            {
+                if (Parent != null) return Parent.AbsoluteTransform * Transform;
+                else return Transform;
+            }
+        }
 
         /// <summary>
         /// Inverse Bind-Pose Matrix of this joint

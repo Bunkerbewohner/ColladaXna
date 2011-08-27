@@ -19,30 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelineDebug", "PipelineDe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColladaXna Standard Sample", "ColladaXna Standard Sample\ColladaXna Standard Sample\ColladaXna Standard Sample.csproj", "{92F535C7-D054-4BA6-BCF2-CF8AFD3A5FD6}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "ColladaXna Standard SampleContent", "ColladaXna Standard Sample\ColladaXna Standard SampleContent\ColladaXna Standard SampleContent.contentproj", "{0DAB2428-B954-4E00-925F-A07953AA3055}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColladaXna Standard SampleContent", "ColladaXna Standard Sample\ColladaXna Standard SampleContent\ColladaXna Standard SampleContent.contentproj", "{0DAB2428-B954-4E00-925F-A07953AA3055}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs26
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = ColladaImporter\\ColladaImporter.csproj
-		SccProjectName1 = ColladaImporter
-		SccLocalPath1 = ColladaImporter
-		SccProjectUniqueName2 = ColladaModel\\ColladaModel.csproj
-		SccProjectName2 = ColladaModel
-		SccLocalPath2 = ColladaModel
-		SccProjectUniqueName3 = ColladaViewer\\ColladaViewer.csproj
-		SccProjectName3 = ColladaViewer
-		SccLocalPath3 = ColladaViewer
-		SccProjectUniqueName4 = SampleGame\\SampleGame\\SampleGame.csproj
-		SccProjectName4 = SampleGame/SampleGame
-		SccLocalPath4 = SampleGame\\SampleGame
-		SccProjectUniqueName5 = SampleGame\\SampleGameContent\\SampleGameContent.contentproj
-		SccProjectName5 = SampleGame/SampleGameContent
-		SccLocalPath5 = SampleGame\\SampleGameContent
-	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = ColladaXna.vsmdi
 	EndGlobalSection
