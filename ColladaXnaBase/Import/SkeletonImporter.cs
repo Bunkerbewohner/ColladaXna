@@ -150,6 +150,23 @@ namespace ColladaXna.Base.Import
         {            
             var skeletonNodes = xmlRoot.SelectNodes(".//skeleton");
 
+            if (skeletonNodes == null || skeletonNodes.Count == 0)
+            {
+                // Some exporters (like the one used by Autodesk 3ds Max 2012)
+                // doesn't export skeleton reference; therefore just look for the first JOINT node
+                try
+                {
+                    XmlNode root = xmlRoot.SelectNodes(".//node[@type='JOINT'][1]")[0];
+                    var list = new List<XmlNode>();
+                    list.Add(root);
+                    return list;
+                }
+                catch (Exception)
+                {
+                    return new List<XmlNode>();
+                }
+            }
+
             // Fetch referenced nodes
             var nodes = new List<XmlNode>();
 

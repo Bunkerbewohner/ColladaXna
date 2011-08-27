@@ -10,10 +10,13 @@ namespace ColladaXna.Base.Import
 {
     public class SceneImporter : IColladaImporter
     {
+        private ColladaModel _model;
+
         #region IColladaImporter Member
 
         public void Import(XmlNode xmlRoot, ColladaModel model)
         {
+            _model = model;
             XmlNode xmlScene = xmlRoot.SelectSingleNode("scene");
 
             model.MeshInstances = ImportMeshInstances(xmlScene, model);            
@@ -108,7 +111,11 @@ namespace ColladaXna.Base.Import
 
         Matrix CreateAbsoluteTransformFromSkeleton(XmlNode xmlControllerInstance)
         {
-            string nodeId = xmlControllerInstance.SelectSingleNode("skeleton").InnerText.Trim().Substring(1);
+            XmlNode skeleton = xmlControllerInstance.SelectSingleNode("skeleton");
+            string nodeId = skeleton != null
+                ? skeleton.InnerText.Trim().Substring(1)
+                : _model.RootJoint.GlobalID;
+
             XmlNode xmlRoot = xmlControllerInstance.OwnerDocument.DocumentElement;
             XmlNode xmlNode = xmlRoot.SelectSingleNode("id('" + nodeId + "')");
 

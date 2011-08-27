@@ -20,10 +20,14 @@ namespace ColladaXna.Base.Import
     /// thus the SkeletonImporter must be executed beforehand.</remarks>
     public class AnimationImporter : IColladaImporter
     {
+        private ColladaModel _model;
+
         #region IColladaImporter Member
 
         public void Import(XmlNode xmlRoot, ColladaModel model)
-        {            
+        {
+            _model = model;
+
             // Find skin definitions. Multiple skin definitions are supported
             // but they have to work on disjoint sets (relate to different joints)
             XmlNodeList xmlSkins = xmlRoot.SelectNodes(".//skin");
@@ -122,7 +126,13 @@ namespace ColladaXna.Base.Import
 
         static bool DoesAnimationAffectJoints(Dictionary<string, Joint> joints, XmlNode xmlAnimation)
         {
-            XmlNode xmlChannel = xmlAnimation.SelectSingleNode("channel");
+            XmlNode xmlChannel = xmlAnimation.SelectSingleNode("//channel");
+            if (xmlChannel == null)
+            {
+                throw new Exception("Animation '" + xmlAnimation.Attributes["id"].Value + 
+                    "' does not contain a channel:" + xmlAnimation.ChildNodes.Count);
+            }
+
             string target = xmlChannel.Attributes["target"].Value;
 
             return joints.ContainsKey(ExtractNodeIdFromTarget(target));
@@ -279,7 +289,7 @@ namespace ColladaXna.Base.Import
 
         static JointAnimation ImportAnimation(XmlNode xmlAnimation, Dictionary<string,Joint> joints)
         {
-            XmlNodeList xmlChannels = xmlAnimation.SelectNodes("channel");
+            XmlNodeList xmlChannels = xmlAnimation.SelectNodes("//channel");
             List<JointAnimationChannel> channels = new List<JointAnimationChannel>();
 
             foreach (XmlNode xmlChannel in xmlChannels)
@@ -288,13 +298,16 @@ namespace ColladaXna.Base.Import
                 string target = xmlChannel.Attributes["target"].Value;
                 string jointId = ExtractNodeIdFromTarget(target);
                 if (!joints.ContainsKey(jointId))
-                    throw new ApplicationException("Animated Joint '" + jointId + "' not found");
+                {
+                    continue;
+                    //throw new ApplicationException("Animated Joint '" + jointId + "' not found");
+                }
 
                 Joint joint = joints[jointId];                
 
                 // Sampler
                 string samplerId = xmlChannel.Attributes["source"].Value.Substring(1);
-                XmlNode xmlSampler = xmlAnimation.SelectSingleNode("sampler[@id='" + samplerId + "']");
+                XmlNode xmlSampler = xmlAnimation.SelectSingleNode("//sampler[@id='" + samplerId + "']");
                 if (xmlSampler == null)
                     throw new ApplicationException("Animation Sampler '" + samplerId + "' not found");
 
@@ -331,9 +344,9 @@ namespace ColladaXna.Base.Import
             string target)
         {            
             // Input and Output sources
-            Source input = Source.FromInput(xmlSampler.SelectSingleNode("input[@semantic='INPUT']"),
+            Source input = Source.FromInput(xmlSampler.SelectSingleNode("//input[@semantic='INPUT']"),
                                             xmlAnimation);
-            Source output = Source.FromInput(xmlSampler.SelectSingleNode("input[@semantic='OUTPUT']"),
+            Source output = Source.FromInput(xmlSampler.SelectSingleNode("//input[@semantic='OUTPUT']"),
                                              xmlAnimation);
 
             // Target (matrix, translation.*, rotation.*, scale.*)
