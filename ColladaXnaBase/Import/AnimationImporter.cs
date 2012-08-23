@@ -124,18 +124,17 @@ namespace ColladaXna.Base.Import
             return target.Substring(0, target.IndexOf('/'));
         }
 
+        /// <summary>
+        /// Checks whether the given animation affects any of the supplied joints.
+        /// </summary>
+        /// <param name="joints">Dictionary of joints</param>
+        /// <param name="xmlAnimation">Animation node</param>
+        /// <returns>True if the animation affects any joint</returns>
         static bool DoesAnimationAffectJoints(Dictionary<string, Joint> joints, XmlNode xmlAnimation)
         {
-            XmlNode xmlChannel = xmlAnimation.SelectSingleNode("//channel");
-            if (xmlChannel == null)
-            {
-                throw new Exception("Animation '" + xmlAnimation.Attributes["id"].Value + 
-                    "' does not contain a channel:" + xmlAnimation.ChildNodes.Count);
-            }
-
-            string target = xmlChannel.Attributes["target"].Value;
-
-            return joints.ContainsKey(ExtractNodeIdFromTarget(target));
+            return (from XmlNode channel in xmlAnimation.SelectNodes("//channel")
+                    where joints.ContainsKey(ExtractNodeIdFromTarget(channel.GetAttributeString("target")))
+                    select channel).Any();
         }
 
         static void ImportAnimations(XmlNodeList xmlAnimations, ColladaModel model)
