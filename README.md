@@ -8,3 +8,5 @@ At its core is the Assembly _ColladaXnaBase_ which contains the class _ColladaMo
 The Assembly _ColladaXnaImporter_ contains the _COLLADA Standard Importer_ which imports the Collada model into the default XNA content format which can be processed and loaded with XNA's default classes.
 
 For documentation and more refer to the Wiki at https://github.com/Bunkerbewohner/ColladaXna/wiki
+
+The code is published under the MIT license (see LICENSE.txt)
