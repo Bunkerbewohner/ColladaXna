@@ -154,8 +154,12 @@ namespace ColladaXna.Base.Import
                 try
                 {
                     XmlNode root = xmlRoot.SelectNodes(".//node[@type='JOINT'][1]")[0];
+
                     var list = new List<XmlNode>();
-                    list.Add(root);
+
+                    if(root != null)
+                        list.Add(root);
+
                     return list;
                 }
                 catch (Exception)
